@@ -1,0 +1,1318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0e152b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Gerencia">
+<link rel="manifest" href="manifest-gerente.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/gerente-192.png">
+<link rel="apple-touch-icon" href="icons/gerente-180.png">
+<title>Comandero 2.5 - Gerencia</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09101f;
+    --bg-soft: #121c35;
+    --surface: rgba(12, 19, 38, 0.94);
+    --surface-2: rgba(20, 30, 56, 0.98);
+    --border: rgba(182, 196, 255, 0.12);
+    --border-strong: rgba(182, 196, 255, 0.22);
+    --text: #f4f7ff;
+    --muted: #96a3c9;
+    --accent: #d8ff61;
+    --accent-soft: rgba(216, 255, 97, 0.14);
+    --info: #87bbff;
+    --danger: #ff8b8b;
+    --danger-soft: rgba(255, 139, 139, 0.14);
+    --success: #77f3b0;
+    --success-soft: rgba(119, 243, 176, 0.14);
+    --shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    color: var(--text);
+    font-family: var(--sans);
+    background:
+      radial-gradient(circle at top left, rgba(216, 255, 97, 0.12), transparent 28%),
+      radial-gradient(circle at top right, rgba(135, 187, 255, 0.14), transparent 24%),
+      linear-gradient(180deg, #09101f 0%, #0d1426 45%, #090d18 100%);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,.7), transparent 90%);
+  }
+
+  button,
+  input,
+  select {
+    font: inherit;
+  }
+
+  input,
+  select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(7, 11, 22, 0.8);
+    color: var(--text);
+    outline: none;
+  }
+
+  input:focus,
+  select:focus {
+    border-color: rgba(216, 255, 97, 0.55);
+    box-shadow: 0 0 0 4px rgba(216, 255, 97, 0.08);
+  }
+
+  button {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    cursor: pointer;
+    padding: 11px 16px;
+    transition: transform .18s ease, border-color .18s ease, background .18s ease;
+  }
+
+  button:hover {
+    transform: translateY(-1px);
+    border-color: var(--border-strong);
+  }
+
+  button.primary {
+    background: linear-gradient(135deg, var(--accent), #efffb2);
+    color: #09101f;
+    border-color: rgba(216,255,97,.65);
+    font-weight: 700;
+  }
+
+  button.success {
+    background: var(--success-soft);
+    color: var(--success);
+    border-color: rgba(119, 243, 176, 0.35);
+  }
+
+  button.danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border-color: rgba(255, 139, 139, 0.35);
+  }
+
+  button.small {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .login-shell {
+    width: min(980px, 100%);
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 20px;
+  }
+
+  .login-hero,
+  .login-card,
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(17, 25, 47, 0.96), rgba(9, 14, 28, 0.96));
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+  }
+
+  .login-hero {
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-hero::after {
+    content: "";
+    position: absolute;
+    right: -48px;
+    top: -48px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(216,255,97,.28), transparent 70%);
+    filter: blur(8px);
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--accent);
+    font-size: 11px;
+  }
+
+  .login-hero h1 {
+    margin: 14px 0 0;
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: .95;
+    letter-spacing: -.05em;
+    max-width: 9ch;
+  }
+
+  .login-copy {
+    max-width: 42ch;
+    color: #ced5ee;
+    line-height: 1.55;
+    margin-top: 14px;
+  }
+
+  .login-points {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 30px;
+  }
+
+  .login-point {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .login-point strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .login-point span {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .login-card {
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 14px;
+  }
+
+  .login-logo {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 26px;
+    letter-spacing: -.08em;
+  }
+
+  .login-sub {
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .error {
+    display: none;
+    color: var(--danger);
+    font-size: 13px;
+  }
+
+  #app {
+    display: none;
+    position: relative;
+    z-index: 1;
+  }
+
+  .shell {
+    width: min(1380px, calc(100% - 32px));
+    margin: 22px auto 28px;
+  }
+
+  .topbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .topbar h2 {
+    margin: 8px 0 0;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1;
+    letter-spacing: -.04em;
+  }
+
+  .topbar p {
+    margin: 10px 0 0;
+    color: var(--muted);
+    max-width: 58ch;
+    line-height: 1.55;
+  }
+
+  .topbar-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+
+  .pill {
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1.1fr .9fr;
+    gap: 18px;
+  }
+
+  .stack {
+    display: grid;
+    gap: 18px;
+  }
+
+  .stack-right {
+    align-content: start;
+  }
+
+  .quick-dock {
+    position: sticky;
+    top: 14px;
+    z-index: 5;
+    display: grid;
+    gap: 12px;
+  }
+
+  .quick-dock > .card {
+    width: 100%;
+    margin: 0;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+  .card.collapsible-card {
+    padding-bottom: 16px;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 16px;
+  }
+
+  .card-head h3 {
+    margin: 6px 0 0;
+    font-size: 22px;
+    letter-spacing: -.03em;
+  }
+
+  .card-copy {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+    margin-top: 6px;
+  }
+
+  .card-head-main {
+    min-width: 0;
+  }
+
+  .card-toggle {
+    flex: 0 0 auto;
+    min-width: 72px;
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+
+  .card-toggle::after {
+    content: "Ocultar";
+  }
+
+  .collapsible-card.collapsed .card-toggle::after {
+    content: "Abrir";
+  }
+
+  .card-body {
+    display: block;
+  }
+
+  .collapsible-card.collapsed .card-body {
+    display: none;
+  }
+
+  .turno-quick-card {
+    padding: 16px 18px;
+  }
+
+  .turno-quick-card .card-head {
+    margin-bottom: 12px;
+  }
+
+  .turno-quick-card .card-head h3 {
+    font-size: 20px;
+  }
+
+  .turno-quick-card .card-copy {
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .compact-mobile-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 84px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-family: var(--mono);
+  }
+
+  .compact-mobile-summary {
+    display: none;
+  }
+
+  .compact-mobile-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+    padding: 0 2px 8px;
+  }
+
+  .compact-mobile-title {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .compact-mobile-toggle::after {
+    content: "Abrir";
+  }
+
+  .compact-mobile-card:not(.collapsed-mobile) .compact-mobile-toggle::after {
+    content: "Cerrar";
+  }
+
+  .compact-mobile-card.collapsed-mobile .compact-mobile-body {
+    display: none;
+  }
+
+  .compact-mobile-card.collapsed-mobile .compact-mobile-summary {
+    display: block;
+    margin-top: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.35;
+    font-family: var(--mono);
+    max-width: calc(100vw - 130px);
+  }
+
+  .metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .metric {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .metric strong {
+    display: block;
+    font-size: 24px;
+    letter-spacing: -.04em;
+  }
+
+  .metric span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .field label {
+    display: block;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .turno-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .turno-actions button {
+    width: 100%;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .tab-btn.active {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: rgba(216,255,97,.35);
+  }
+
+  .list {
+    display: grid;
+    gap: 10px;
+  }
+
+  .ticket-card,
+  .turno-card,
+  .audit-row,
+  .empty {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .empty {
+    padding: 18px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .ticket-head,
+  .turno-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    align-items: flex-start;
+  }
+
+  .ticket-title,
+  .turno-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .ticket-meta,
+  .turno-meta {
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .ticket-total,
+  .turno-badge {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  .ticket-body,
+  .turno-body {
+    padding: 0 16px 16px;
+  }
+
+  .ticket-lines {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .ticket-line {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .ticket-actions,
+  .audit-actions,
+  .pager {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .ticket-actions {
+    margin-top: 12px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 7px 11px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .badge.active {
+    color: var(--success);
+    border-color: rgba(119,243,176,.35);
+    background: var(--success-soft);
+  }
+
+  .turno-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .turno-stat {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px;
+    background: rgba(255,255,255,0.025);
+  }
+
+  .turno-stat strong {
+    display: block;
+    font-size: 18px;
+  }
+
+  .turno-stat span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 4px;
+  }
+
+  .audit-row {
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 112px 116px 94px 160px 1fr;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .audit-row.sensitive {
+    border-left: 3px solid var(--danger);
+    background: rgba(255, 139, 139, 0.06);
+  }
+
+  .audit-col {
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .audit-col.mono {
+    font-family: var(--mono);
+  }
+
+  .audit-head {
+    display: grid;
+    grid-template-columns: 112px 116px 94px 160px 1fr;
+    gap: 12px;
+    padding: 0 2px 10px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .pager {
+    justify-content: space-between;
+    margin-top: 14px;
+  }
+
+  .pager-info {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th,
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+
+  th {
+    font-family: var(--mono);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  td.num {
+    text-align: right;
+    font-family: var(--mono);
+  }
+
+  #toast {
+    position: fixed;
+    left: 50%;
+    bottom: 24px;
+    transform: translateX(-50%) translateY(18px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .22s ease, transform .22s ease;
+    background: rgba(6, 10, 18, 0.92);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 16px;
+    border-radius: 999px;
+    box-shadow: var(--shadow);
+    z-index: 20;
+  }
+
+  #toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 1080px) {
+    .grid,
+    .login-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .metrics,
+    .turno-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .stack-right {
+      order: -1;
+    }
+
+    .quick-dock {
+      top: 8px;
+    }
+
+    .turno-quick-card {
+      padding: 14px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    #app {
+      padding-top: calc(148px + env(safe-area-inset-top, 0px));
+    }
+
+    .shell {
+      width: min(100% - 20px, 100%);
+      margin: 12px auto 20px;
+    }
+
+    .card,
+    .login-card,
+    .login-hero {
+      border-radius: 22px;
+    }
+
+    .topbar {
+      flex-direction: column;
+    }
+
+    .topbar-meta {
+      justify-content: flex-start;
+    }
+
+    .quick-dock {
+      position: fixed;
+      left: 10px;
+      right: 10px;
+      top: calc(10px + env(safe-area-inset-top, 0px));
+      z-index: 15;
+      gap: 8px;
+    }
+
+    .metrics,
+    .login-points {
+      grid-template-columns: 1fr;
+    }
+
+    .turno-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .turno-stat {
+      padding: 10px;
+    }
+
+    .turno-stat strong {
+      font-size: 18px;
+    }
+
+    .turno-stat span {
+      font-size: 11px;
+    }
+
+    .turno-quick-card {
+      top: 8px;
+      padding: 10px 12px;
+    }
+
+    .turno-quick-card .card-copy {
+      display: none;
+    }
+
+    .compact-mobile-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 84px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-family: var(--mono);
+    }
+
+    .compact-mobile-toggle::after {
+      content: "Abrir";
+    }
+
+    .compact-mobile-card:not(.collapsed-mobile) .compact-mobile-toggle::after {
+      content: "Cerrar";
+    }
+
+    .compact-mobile-card.collapsed-mobile .compact-mobile-body {
+      display: none;
+    }
+
+    .compact-mobile-card.collapsed-mobile .compact-mobile-summary {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.35;
+      font-family: var(--mono);
+      max-width: calc(100vw - 130px);
+    }
+
+    .turno-quick-card .card-head {
+      margin-bottom: 0;
+      align-items: center;
+    }
+
+    .turno-quick-card .eyebrow {
+      font-size: 10px;
+    }
+
+    .turno-quick-card .card-head h3 {
+      font-size: 17px;
+      margin-top: 4px;
+    }
+
+    .turno-quick-card .field label {
+      margin-bottom: 4px;
+    }
+
+    .turno-quick-card input {
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .turno-quick-card #turno-resumen-actual {
+      margin-top: 8px !important;
+    }
+
+    .turno-quick-card .turno-card {
+      border-radius: 16px;
+    }
+
+    .turno-quick-card .turno-head,
+    .turno-quick-card .turno-body {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+
+    .turno-quick-card .turno-stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .turno-quick-card .turno-stat {
+      padding: 8px 6px;
+    }
+
+    .turno-quick-card .turno-stat strong {
+      font-size: 14px;
+    }
+
+    .turno-quick-card .turno-stat span {
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .audit-filtros-wrap .filters {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .audit-filtros-wrap input,
+    .audit-filtros-wrap select {
+      padding: 10px 10px;
+      border-radius: 12px;
+      font-size: 13px;
+    }
+
+    .audit-filtros-wrap .field label {
+      font-size: 10px;
+      margin-bottom: 4px;
+    }
+
+    .audit-filtros-wrap .actions {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 10px !important;
+    }
+
+    .audit-filtros-wrap .actions button {
+      width: 100%;
+      padding: 9px 8px;
+      font-size: 12px;
+    }
+
+    .audit-head {
+      display: none;
+    }
+
+    .audit-filtros-wrap {
+      padding: 10px 12px;
+    }
+
+    .audit-filtros-wrap .compact-mobile-head {
+      padding: 0 0 6px;
+    }
+
+    .audit-filtros-wrap .compact-mobile-title {
+      font-family: var(--mono);
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .audit-filtros-wrap.collapsed-mobile .audit-filtros-body {
+      display: none;
+    }
+
+    .audit-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "date action"
+        "staff mesa"
+        "detail detail";
+      gap: 6px 10px;
+      padding: 12px;
+    }
+
+    .audit-row .audit-col:nth-child(1) {
+      grid-area: date;
+    }
+
+    .audit-row .audit-col:nth-child(2) {
+      grid-area: staff;
+    }
+
+    .audit-row .audit-col:nth-child(3) {
+      grid-area: mesa;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .audit-row .audit-col:nth-child(4) {
+      grid-area: action;
+      justify-self: end;
+      text-align: right;
+    }
+
+    .audit-row .audit-col:nth-child(5) {
+      grid-area: detail;
+    }
+
+    .audit-col {
+      font-size: 11px;
+      line-height: 1.35;
+    }
+  }
+
+  @media (max-width: 520px) {
+    #app {
+      padding-top: calc(168px + env(safe-area-inset-top, 0px));
+    }
+
+    .turno-actions {
+      grid-template-columns: 1fr;
+    }
+
+    #turno-status {
+      line-height: 1.4;
+    }
+
+    .turno-quick-card {
+      padding: 12px;
+    }
+
+    .turno-quick-card .card-head h3 {
+      font-size: 16px;
+    }
+
+    .turno-quick-card .turno-stats {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .audit-filtros-wrap .filters,
+    .audit-filtros-wrap .actions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+  <div id="login-screen">
+    <div class="login-shell">
+      <div class="login-hero">
+        <div>
+          <div class="eyebrow">Acceso de gerencia</div>
+          <h1>Vista rapida para revisar y decidir.</h1>
+          <p class="login-copy">Una pantalla aparte para ventas, auditoria y turnos. Asi el gerente no necesita entrar en el panel completo de administracion para revisar el dia o reimprimir tickets.</p>
+        </div>
+        <div class="login-points">
+          <div class="login-point">
+            <strong>Ventas</strong>
+            <span>Consulta tickets, totales y articulos sin cargar una lista infinita en pantalla.</span>
+          </div>
+          <div class="login-point">
+            <strong>Turnos</strong>
+            <span>Abre, cierra y revisa el resumen del turno actual y los cierres anteriores.</span>
+          </div>
+          <div class="login-point">
+            <strong>Auditoria</strong>
+            <span>Filtro protegido por contraseña y navegacion paginada para revisar actividad sensible.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-card">
+        <div class="login-logo">Comandero 2.5</div>
+        <div class="login-sub">Usa la contraseña propia de gerencia para entrar a ventas, auditoria y turnos.</div>
+        <label class="field">
+          <span class="eyebrow" style="display:block;margin-bottom:8px;color:var(--muted)">Contraseña</span>
+          <input type="password" id="pwd-input" placeholder="Introduce la contraseña" autocomplete="off">
+        </label>
+        <button class="primary" onclick="checkLogin()">Entrar</button>
+        <div id="login-error" class="error">Contraseña incorrecta</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app">
+    <div class="shell">
+      <div class="topbar">
+        <div>
+          <div class="eyebrow">Panel ligero</div>
+          <h2>Gerencia</h2>
+          <p>Ventas con reimpresion, control de turnos y auditoria protegida. Todo en una vista aparte para no tocar el flujo actual de <code>admin.html</code>.</p>
+        </div>
+        <div class="topbar-meta">
+          <div class="pill" id="topbar-turno-pill">Sin turno activo</div>
+          <div class="pill" id="topbar-ventas-pill">Ventas listas</div>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="stack stack-left">
+          <section class="card collapsible-card" id="card-ventas">
+            <div class="card-head">
+              <div class="card-head-main">
+                <div class="eyebrow">Ventas</div>
+                <h3>Tickets y resumen</h3>
+                <div class="card-copy">Filtra por fechas y revisa tickets, articulos o dias. La lista por ticket va paginada para que no se vuelva pesada.</div>
+              </div>
+              <button type="button" class="card-toggle" aria-expanded="true" onclick="toggleGerenteSection('ventas')"></button>
+            </div>
+            <div class="card-body">
+            <div class="metrics">
+              <div class="metric"><strong id="stat-mesas">-</strong><span>Tickets</span></div>
+              <div class="metric"><strong id="stat-total">-</strong><span>Total vendido</span></div>
+              <div class="metric"><strong id="stat-media">-</strong><span>Ticket medio</span></div>
+              <div class="metric"><strong id="stat-lineas">-</strong><span>Articulos</span></div>
+            </div>
+
+            <div class="actions" style="margin-bottom:14px">
+              <button onclick="exportarVentasGerenteCSV()">Exportar CSV</button>
+            </div>
+
+            <div class="tabs">
+              <button id="ventas-tab-tickets" class="tab-btn active" onclick="mostrarTabVentasGerente('tickets', this)">Por ticket</button>
+              <button id="ventas-tab-articulos" class="tab-btn" onclick="mostrarTabVentasGerente('articulos', this)">Por articulo</button>
+              <button id="ventas-tab-dias" class="tab-btn" onclick="mostrarTabVentasGerente('dias', this)">Por dias</button>
+            </div>
+
+            <div id="ventas-por-ticket">
+              <div id="ventas-lista" class="list">
+                <div class="empty">Selecciona un rango y pulsa Filtrar.</div>
+              </div>
+              <div class="pager" id="ventas-pager" style="display:none">
+                <div class="pager-info" id="ventas-pager-info"></div>
+                <div class="ticket-actions">
+                  <button class="small" id="ventas-prev" onclick="cambiarPaginaVentas(-1)">Anterior</button>
+                  <button class="small" id="ventas-next" onclick="cambiarPaginaVentas(1)">Siguiente</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="ventas-por-articulo" style="display:none">
+              <div id="ventas-articulos"></div>
+            </div>
+
+            <div id="ventas-por-dia" style="display:none">
+              <div id="ventas-dias"></div>
+            </div>
+            </div>
+          </section>
+
+          <section class="card collapsible-card collapsed" id="card-auditoria">
+            <div class="card-head">
+              <div class="card-head-main">
+                <div class="eyebrow">Auditoria</div>
+                <h3>Registro de actividad</h3>
+                <div class="card-copy">La auditoria queda incluida dentro del acceso de gerencia y se muestra paginada para revisar bloques manejables.</div>
+              </div>
+              <button type="button" class="card-toggle" aria-expanded="false" onclick="toggleGerenteSection('auditoria')"></button>
+            </div>
+
+            <div class="card-body">
+            <div id="audit-unlocked">
+              <div class="metrics" style="margin-top:6px">
+                <div class="metric"><strong id="audit-stat-eventos">-</strong><span>Eventos</span></div>
+                <div class="metric"><strong id="audit-stat-eliminados">-</strong><span>Eliminaciones</span></div>
+                <div class="metric"><strong id="audit-stat-descuentos">-</strong><span>Descuentos o bajadas</span></div>
+                <div class="metric"><strong id="audit-stat-paginas">-</strong><span>Paginas</span></div>
+              </div>
+
+              <div class="audit-head">
+                <div>Fecha / Hora</div>
+                <div>Camarero</div>
+                <div>Mesa</div>
+                <div>Accion</div>
+                <div>Detalle</div>
+              </div>
+              <div id="audit-lista" class="list">
+                <div class="empty">Pulsa Aplicar para cargar el registro.</div>
+              </div>
+              <div class="pager" id="audit-pager" style="display:none">
+                <div class="pager-info" id="audit-pager-info"></div>
+                <div class="ticket-actions">
+                  <button class="small" id="audit-prev" onclick="cambiarPaginaAuditoria(-1)">Anterior</button>
+                  <button class="small" id="audit-next" onclick="cambiarPaginaAuditoria(1)">Siguiente</button>
+                </div>
+              </div>
+            </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="stack stack-right">
+          <div class="quick-dock">
+            <section class="card turno-quick-card">
+              <div class="card-head">
+                <div>
+                  <div class="eyebrow">Turno activo</div>
+                  <h3>Apertura y cierre</h3>
+                  <div class="card-copy">Control rapido del turno en curso con el mismo comportamiento que ya existe en administracion.</div>
+                  <div class="compact-mobile-summary" id="turno-compact-summary">Sin turno activo</div>
+                </div>
+                <button type="button" class="compact-mobile-toggle" aria-expanded="false" onclick="toggleCompactGerente('turno')"></button>
+              </div>
+              <div class="compact-mobile-body">
+                <div class="field" style="margin-bottom:12px">
+                  <label for="turno-nombre">Nombre del turno</label>
+                  <input type="text" id="turno-nombre" placeholder="Ej: Comida, Cena, Tarde">
+                </div>
+                <div class="actions turno-actions">
+                  <button id="btn-abrir-turno" class="success" onclick="abrirTurnoGerente()">Abrir turno</button>
+                  <button id="btn-cerrar-turno" class="danger" onclick="cerrarTurnoGerente()" disabled>Cerrar turno</button>
+                </div>
+                <div id="turno-status" style="margin-top:12px;color:var(--muted);font-family:var(--mono);font-size:13px">Sin turno activo</div>
+                <div id="turno-resumen-actual" style="margin-top:14px">
+                  <div class="empty">No hay turno activo.</div>
+                </div>
+              </div>
+            </section>
+
+            <section class="card audit-filtros-wrap">
+              <div class="compact-mobile-head">
+                <div class="compact-mobile-title">Filtro comun y auditoria</div>
+                <button type="button" class="compact-mobile-toggle" aria-expanded="false" onclick="toggleCompactGerente('audit-filter')"></button>
+              </div>
+              <div class="audit-filtros-body compact-mobile-body">
+                <div class="filters">
+                  <div class="field">
+                    <label for="filtro-fecha-ini">Fecha desde</label>
+                    <input type="date" id="filtro-fecha-ini">
+                  </div>
+                  <div class="field">
+                    <label for="filtro-fecha-fin">Fecha hasta</label>
+                    <input type="date" id="filtro-fecha-fin">
+                  </div>
+                  <div class="field">
+                    <label for="filtro-hora-ini">Hora desde</label>
+                    <input type="time" id="filtro-hora-ini" value="00:00">
+                  </div>
+                  <div class="field">
+                    <label for="filtro-hora-fin">Hora hasta</label>
+                    <input type="time" id="filtro-hora-fin" value="23:59">
+                  </div>
+                  <div class="field">
+                    <label for="audit-camarero">Camarero</label>
+                    <select id="audit-camarero"><option value="">- Todos -</option></select>
+                  </div>
+                  <div class="field">
+                    <label for="audit-accion">Accion</label>
+                    <select id="audit-accion">
+                      <option value="">- Todas -</option>
+                      <option value="articulo_agregado">Articulos añadidos</option>
+                      <option value="articulo_eliminado">Articulos eliminados</option>
+                      <option value="cantidad_editada">Cantidades editadas</option>
+                      <option value="descuento_aplicado">Descuentos aplicados</option>
+                      <option value="ticket_impreso">Tickets impresos</option>
+                      <option value="ticket_cobrado">Cobros</option>
+                      <option value="factura_emitida">Facturas emitidas</option>
+                      <option value="mesa_cerrada">Mesas cerradas</option>
+                      <option value="mesa_transferida">Mesas transferidas</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="audit-mesa">Mesa</label>
+                    <input type="text" id="audit-mesa" placeholder="Ej: 5">
+                  </div>
+                </div>
+                <div class="actions" style="margin-bottom:0">
+                  <button class="primary" onclick="aplicarFiltrosComunesGerente()">Aplicar</button>
+                  <button onclick="resetFiltrosAuditoriaGerente()">Reset</button>
+                  <button onclick="exportarAuditoriaGerenteCSV()">Exportar CSV</button>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <section class="card collapsible-card" id="card-turnos">
+            <div class="card-head">
+              <div class="card-head-main">
+                <div class="eyebrow">Historico</div>
+                <h3>Turnos cerrados</h3>
+                <div class="card-copy">Resumen de cierres recientes para revisar fechas, duracion, tickets y total.</div>
+              </div>
+              <button type="button" class="card-toggle" aria-expanded="true" onclick="toggleGerenteSection('turnos')"></button>
+            </div>
+            <div class="card-body">
+            <div id="turnos-lista" class="list">
+              <div class="empty">Todavia no hay turnos cerrados.</div>
+            </div>
+            </div>
+          </section>
+
+          <section class="card collapsible-card collapsed" id="card-notas">
+            <div class="card-head">
+              <div class="card-head-main">
+                <div class="eyebrow">Notas</div>
+                <h3>Como se comporta esta vista</h3>
+                <div class="card-copy">No modifica <code>admin.html</code>. La reimpresion de tickets normales envia un trabajo a la misma cola de impresion que ya usa el sistema.</div>
+              </div>
+              <button type="button" class="card-toggle" aria-expanded="false" onclick="toggleGerenteSection('notas')"></button>
+            </div>
+            <div class="card-body">
+            <div class="list">
+              <div class="empty">Si Verifactu esta desactivado, aqui podras seguir reimprimiendo tickets normales del historial.</div>
+              <div class="empty">La paginacion mejora la carga visual, aunque las ventas siguen leyendo el nodo <code>historial</code> completo porque ese dato hoy se guarda en una sola rama.</div>
+            </div>
+            </div>
+          </section>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+  <script type="module" src="./gerente.js"></script>
+</body>
+</html>

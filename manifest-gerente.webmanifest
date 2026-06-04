@@ -1,0 +1,22 @@
+{
+  "name": "Comandero - Gerencia",
+  "short_name": "Gerencia",
+  "description": "Pantalla de gerencia para ventas, auditoria y turnos.",
+  "start_url": "./gerente.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09101f",
+  "theme_color": "#0e152b",
+  "icons": [
+    {
+      "src": "./icons/gerente-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/gerente-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

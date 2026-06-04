@@ -1,0 +1,22 @@
+{
+  "name": "Comandero - Barra",
+  "short_name": "Barra",
+  "description": "Pantalla de barra para preparar y servir comandas.",
+  "start_url": "./barra.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09101d",
+  "theme_color": "#09101d",
+  "icons": [
+    {
+      "src": "./icons/barra-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icons/barra-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
