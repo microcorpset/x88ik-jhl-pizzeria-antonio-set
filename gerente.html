@@ -1216,6 +1216,13 @@
                 <div id="turno-resumen-actual" style="margin-top:14px">
                   <div class="empty">No hay turno activo.</div>
                 </div>
+                <div style="margin-top:16px; border-top: 1px dashed var(--border); padding-top:14px">
+                  <div class="field" style="margin-bottom:10px">
+                    <label for="cierre-fecha">Día del cierre (vacío = hoy)</label>
+                    <input type="date" id="cierre-fecha">
+                  </div>
+                  <button class="primary" onclick="cierreCajaRapido()" style="width:100%">Imprimir Cierre de Caja del Día</button>
+                </div>
               </div>
             </section>
 

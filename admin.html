@@ -1299,6 +1299,30 @@
                 <label for="local-direccion">Dirección</label>
                 <input type="text" id="local-direccion" placeholder="Dirección opcional" />
               </div>
+              <div class="field-stack" style="margin-top:10px">
+                <label for="local-browser-print-enabled">Mini app local de impresión</label>
+                <select id="local-browser-print-enabled">
+                  <option value="false">Desactivada</option>
+                  <option value="true">Activada (usa impresion.html abierta)</option>
+                </select>
+                <p style="font-size:11px;color:var(--muted);margin-top:4px">
+                  Si la activas, las comandas se envían también a <span style="font-family:var(--mono)">impresion.html</span> para imprimirlas desde una pestaña local del navegador.
+                </p>
+              </div>
+              <div class="form-row" style="margin-top:10px">
+                <div class="field-stack" style="flex:1">
+                  <label for="local-network-url">Servidor local Wi-Fi</label>
+                  <input type="text" id="local-network-url" placeholder="http://192.168.1.50:5390" />
+                </div>
+                <div class="field-stack" style="flex:1">
+                  <label for="local-network-mode">Modo red local</label>
+                  <select id="local-network-mode">
+                    <option value="disabled">Desactivado</option>
+                    <option value="fallback">Solo si falla Firebase</option>
+                    <option value="mirror">Enviar tambiÃ©n a la red local</option>
+                  </select>
+                </div>
+              </div>
               <div class="form-row" style="margin-top:10px">
                 <div class="field-stack" style="flex:1">
                   <label for="local-telefono">Teléfono</label>
@@ -1417,6 +1441,10 @@
                   <label for="local-ticket-print-mode">Impresión ticket final</label>
                   <select id="local-ticket-print-mode">
                     <option value="browser">Navegador (mas visual)</option>
+                    <option value="local">Mini app local (impresion.html)</option>
+                    <option value="local+browser">Mini app local + navegador</option>
+                    <option value="local_server">Servidor local LAN</option>
+                    <option value="local_server+browser">Servidor local LAN + navegador</option>
                     <option value="service">Servicio Python (mas nitido)</option>
                     <option value="both">Ambos</option>
                   </select>
@@ -1537,6 +1565,13 @@
               </div>
               <div id="turno-resumen-actual" style="margin-top:12px">
                 <div class="ventas-empty" style="padding:1.2rem 1rem">No hay turno activo</div>
+              </div>
+              <div style="margin-top:16px; border-top: 1px dashed var(--border); padding-top:14px">
+                <div class="field-stack" style="margin-bottom:10px">
+                  <label for="cierre-fecha">Día del cierre (vacío = hoy)</label>
+                  <input type="date" id="cierre-fecha" />
+                </div>
+                <button class="btn btn-accent" onclick="cierreCajaRapido()" style="width:100%">Imprimir Cierre de Caja del Día</button>
               </div>
             </div>
           </div>
