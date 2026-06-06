@@ -2128,8 +2128,13 @@ function aplanarPedidos(pedidos) {
     const ls = envio.lineas || { [envioId]: envio };
     const envioTs = envio.ts || null;
     const envioCamarero = envio.camarero || null;
-    Object.entries(ls).forEach(([artId, l]) => {
-      lineas.push({ envioId, artId, envioTs, envioCamarero, ...l });
+    Object.entries(ls).forEach(([keyInDb, l]) => {
+      const artId = l.artId || keyInDb;
+      const baseId = artId.split('__')[0];
+      const nombre = l.nombre || (cartaData[baseId]?.nombre) || 'Artículo';
+      const precio = l.precio !== undefined ? l.precio : (cartaData[baseId]?.precio || 0);
+      const destino = l.destino || (cartaData[baseId]?.destino || 'barra');
+      lineas.push({ ...l, envioId, dbKey: keyInDb, artId, nombre, precio, destino, envioTs, envioCamarero });
     });
   });
   return lineas;
@@ -2165,7 +2170,7 @@ function renderTicket(pedidos) {
       return { ...l, qtyOriginal: l.qty, qtyCuenta, qtyMax };
     })
     .filter(l => l.qtyCuenta > 0)
-    .sort((a, b) => (a.envioId || '').localeCompare(b.envioId || '') || a.nombre.localeCompare(b.nombre, 'es'));
+    .sort((a, b) => (a.envioId || '').localeCompare(b.envioId || '') || (a.nombre || '').localeCompare(b.nombre || '', 'es'));
 
   window._tLineas = lineasServidas;
 
@@ -2380,7 +2385,7 @@ function renderTicket(pedidos) {
             // Si vuelve al precio original, borra el override (null)
             const val = Math.abs(nuevoP - precioOriginal) < 0.001 ? null : nuevoP;
             if (val === null) delete ticketPreciosCustom[clave];
-            writes.push(set(ref(db, `pedidos/${mesaId}/${l.envioId}/lineas/${l.artId}/precioTicket`), val));
+            writes.push(set(ref(db, `pedidos/${mesaId}/${l.envioId}/lineas/${l.dbKey || l.artId}/precioTicket`), val));
           }
         }
         await Promise.all(writes);
@@ -2488,13 +2493,14 @@ async function editarCantidadTicket(i, delta) {
   const l = window._tLineas?.[i];
   if (!l) return;
   const nuevaQty = Math.max(1, l.qtyCuenta + delta);
-  const path = 'pedidos/' + mesaId + '/' + l.envioId + '/lineas/' + l.artId + '/qtyTicket';
+  const keyToUse = l.dbKey || l.artId;
+  const path = 'pedidos/' + mesaId + '/' + l.envioId + '/lineas/' + keyToUse + '/qtyTicket';
   if (nuevaQty === qtyMaxEnCuenta(l)) await set(ref(db, path), null);
   else await set(ref(db, path), nuevaQty);
-  await logAccion(mesaId, l.envioId, 'cantidad_editada', `${l.artId}: ${l.qtyCuenta}→${nuevaQty}`);
+  await logAccion(mesaId, l.envioId, 'cantidad_editada', `${keyToUse}: ${l.qtyCuenta}→${nuevaQty}`);
   await logAuditoria('cantidad_editada',
-    `${l.nombre || l.artId}: ${l.qtyCuenta} → ${nuevaQty}`,
-    { envioId: l.envioId, artId: l.artId, qtyAntes: l.qtyCuenta, qtyDespues: nuevaQty, precio: Number(l.precio || 0) }
+    `${l.nombre || keyToUse}: ${l.qtyCuenta} → ${nuevaQty}`,
+    { envioId: l.envioId, artId: keyToUse, qtyAntes: l.qtyCuenta, qtyDespues: nuevaQty, precio: Number(l.precio || 0) }
   );
   await cargarTicketActual();
 }
@@ -2502,21 +2508,22 @@ async function editarCantidadTicket(i, delta) {
 async function quitarDelTicket(i) {
   const l = window._tLineas?.[i];
   if (!l) return;
-  const { envioId, artId } = l;
+  const { envioId } = l;
+  const keyToUse = l.dbKey || l.artId;
   const notaBase = (l.nota || '')
     .replace(/\s*·?\s*⚠️\s*Comprobar/g, '').replace(/\s*·?\s*✅\s*Verificado/g, '').trim();
   const updates = {
-    [`pedidos/${mesaId}/${envioId}/lineas/${artId}/verificado`]: false,
-    [`pedidos/${mesaId}/${envioId}/lineas/${artId}/qtyServida`]: null,
-    [`pedidos/${mesaId}/${envioId}/lineas/${artId}/qtyTicket`]: 0,
-    [`pedidos/${mesaId}/${envioId}/lineas/${artId}/nota`]: (notaBase ? notaBase + ' · ' : '') + '⚠️ Comprobar',
+    [`pedidos/${mesaId}/${envioId}/lineas/${keyToUse}/verificado`]: false,
+    [`pedidos/${mesaId}/${envioId}/lineas/${keyToUse}/qtyServida`]: null,
+    [`pedidos/${mesaId}/${envioId}/lineas/${keyToUse}/qtyTicket`]: 0,
+    [`pedidos/${mesaId}/${envioId}/lineas/${keyToUse}/nota`]: (notaBase ? notaBase + ' · ' : '') + '⚠️ Comprobar',
   };
-  if (l.estado === 'servido') updates[`pedidos/${mesaId}/${envioId}/lineas/${artId}/estado`] = 'pendiente';
+  if (l.estado === 'servido') updates[`pedidos/${mesaId}/${envioId}/lineas/${keyToUse}/estado`] = 'pendiente';
   await update(ref(db), updates);
-  await logAccion(mesaId, envioId, 'item_quitado', artId);
+  await logAccion(mesaId, envioId, 'item_quitado', keyToUse);
   await logAuditoria('articulo_eliminado',
-    `${l.nombre || artId} (${l.qtyCuenta}× a ${fmtEu(l.precio || 0)})`,
-    { envioId, artId, qty: l.qtyCuenta, precio: Number(l.precio || 0), importe: Math.round(Number(l.precio || 0) * Number(l.qtyCuenta || 0) * 100) / 100 }
+    `${l.nombre || keyToUse} (${l.qtyCuenta}× a ${fmtEu(l.precio || 0)})`,
+    { envioId, artId: keyToUse, qty: l.qtyCuenta, precio: Number(l.precio || 0), importe: Math.round(Number(l.precio || 0) * Number(l.qtyCuenta || 0) * 100) / 100 }
   );
   await cargarTicketActual();
 }
