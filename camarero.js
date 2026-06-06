@@ -2163,6 +2163,15 @@ function renderTicket(pedidos) {
   const vfRef = pedidos['_vf'] || null;
   const todasLineas = aplanarPedidos(pedidos);
 
+  // Limpiar automáticamente nodos corruptos creados por versiones anteriores en caché
+  todasLineas.forEach(l => {
+    const isCorrupto = !l.qty && l.qtyTicket !== undefined;
+    const key = l.dbKey || l.artId;
+    if (key === 'undefined' || key === 'null' || isCorrupto) {
+      remove(ref(db, `pedidos/${mesaId}/${l.envioId}/lineas/${key}`));
+    }
+  });
+
   const lineasServidas = todasLineas
     .map(l => {
       const qtyCuenta = qtyEnCuenta(l);
