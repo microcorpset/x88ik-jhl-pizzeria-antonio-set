@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -114,14 +114,15 @@
     border-radius:22px;
     padding:1.6rem 1.4rem;
     width:100%; max-width:340px;
+    max-height:85vh;
     display:flex; flex-direction:column; gap:1rem;
     box-shadow:var(--shadow);
     animation:modal-in .2s cubic-bezier(.34,1.56,.64,1);
   }
   @keyframes modal-in{from{opacity:0;transform:scale(.92) translateY(12px)}to{opacity:1;transform:none}}
-  .modal-title{font-family:var(--mono); font-size:15px; font-weight:500}
-  .modal-body{font-size:14px; color:var(--muted); line-height:1.55}
-  .modal-actions{display:flex; gap:8px; justify-content:flex-end}
+  .modal-title{font-family:var(--mono); font-size:15px; font-weight:500; flex-shrink:0}
+  .modal-body{font-size:14px; color:var(--muted); line-height:1.55; overflow-y:auto; flex:1}
+  .modal-actions{display:flex; gap:8px; justify-content:flex-end; flex-shrink:0}
   .modal-btn{
     padding:10px 16px; border-radius:12px; font-family:var(--mono); font-size:13px; cursor:pointer;
     border:1px solid var(--border); background:var(--surface3); color:var(--text);
