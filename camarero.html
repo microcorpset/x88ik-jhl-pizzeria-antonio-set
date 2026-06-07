@@ -375,9 +375,35 @@
     grid-template-columns:repeat(var(--plano-cols,16),1fr);
     grid-template-rows:repeat(var(--plano-rows,12),1fr);
     gap:3px;width:100%;
+    margin:0 auto;
     aspect-ratio:var(--plano-cols,16)/var(--plano-rows,12);
     background:var(--surface2);border-radius:12px;padding:6px;min-width:300px
   }
+  @media (min-height: 500px) {
+    .plano-grid {
+      width: min(100%, calc((100vh - 290px) * var(--plano-cols, 16) / var(--plano-rows, 12)));
+      max-height: calc(100vh - 290px);
+    }
+  }
+
+  /* Compact styles when viewing plano to prevent scrolling */
+  body.plano-active .app-shell {
+    padding-bottom: 20px;
+  }
+  body.plano-active .page-copy {
+    display: none;
+  }
+  body.plano-active .page-head {
+    margin-bottom: 8px;
+  }
+  body.plano-active .mesas-links {
+    margin-top: 10px;
+    padding: 10px 12px;
+  }
+  body.plano-active #plano-contenedor {
+    margin-top: 10px;
+  }
+
   .plano-mesa{
     border-radius:8px;display:flex;flex-direction:column;align-items:center;
     justify-content:center;cursor:pointer;font-family:var(--mono);
