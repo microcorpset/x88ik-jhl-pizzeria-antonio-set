@@ -1016,6 +1016,16 @@
   .plano-mesa-sync{font-size:10px;margin-left:2px}
   .plano-mesa-extra{display:block;font-size:10px;text-align:center;width:100%}
   .plano-sinubicar{font-size:11px;color:var(--muted);margin-top:10px;padding:0 2px}
+
+  /* Cabecera pegajosa en pestaña Carta */
+  #sec-carta .section-head {
+    position: sticky;
+    top: 76px;
+    background: transparent;
+    z-index: 9;
+    padding: 12px 0 16px;
+    margin-top: -12px;
+  }
 </style>
 </head>
 <body>
@@ -1130,7 +1140,7 @@
         </div>
 
         <div class="grid-2" style="grid-template-columns: 1fr 2.5fr; align-items: start;">
-          <div class="stack" id="carta-sidebar-stack" style="position: sticky; top: 20px; max-height: calc(100vh - 120px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+          <div class="stack" id="carta-sidebar-stack" style="position: sticky; top: 210px; max-height: calc(100vh - 230px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
             <div class="card">
               <div class="card-header">
                 <div>
