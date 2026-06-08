@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b1020">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Admin">
+<link rel="manifest" href="manifest-admin.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/admin-192.png">
+<link rel="apple-touch-icon" href="icons/admin-180.png">
+<title>Comandero 2.5 - Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b1020;
+    --bg-soft: #131b31;
+    --surface: rgba(14, 20, 38, 0.9);
+    --surface-strong: rgba(19, 27, 49, 0.98);
+    --surface2: #1a2340;
+    --surface3: #222d52;
+    --border: rgba(182, 196, 255, 0.12);
+    --border-strong: rgba(182, 196, 255, 0.2);
+    --accent: #d8ff61;
+    --accent-dim: rgba(216, 255, 97, 0.14);
+    --accent-strong: #edff9a;
+    --danger: #ff7a7a;
+    --danger-dim: rgba(255, 122, 122, 0.14);
+    --success: #71ffb0;
+    --success-dim: rgba(113, 255, 176, 0.14);
+    --info: #7eb6ff;
+    --text: #f5f7ff;
+    --muted: #97a2c7;
+    --muted-strong: #c4cbdf;
+    --shadow: 0 24px 80px rgba(0, 0, 0, 0.34);
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(216, 255, 97, 0.12), transparent 26%),
+      radial-gradient(circle at top right, rgba(126, 182, 255, 0.14), transparent 24%),
+      linear-gradient(180deg, #0a0f1d 0%, #0d1325 38%, #090d18 100%);
+    color: var(--text);
+    font-family: var(--sans);
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0.7), transparent 85%);
+  }
+
+  a { color: inherit; }
+
+  /* LOGIN */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .login-shell {
+    width: min(960px, 100%);
+    display: grid;
+    grid-template-columns: 1.15fr .85fr;
+    gap: 1.5rem;
+    align-items: stretch;
+  }
+
+  .login-hero,
+  .login-box {
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    background: linear-gradient(180deg, rgba(22, 30, 56, 0.95), rgba(11, 16, 30, 0.96));
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+  }
+
+  .login-hero {
+    padding: 2.4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .login-hero::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    right: -40px;
+    top: -40px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(216,255,97,0.28), transparent 68%);
+    filter: blur(6px);
+  }
+
+  .login-kicker,
+  .brand-chip,
+  .mini-kicker,
+  .section-eyebrow,
+  .card-kicker,
+  .filtro-label,
+  h3 {
+    font-family: var(--mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .login-kicker {
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: .9rem;
+  }
+
+  .login-title {
+    font-size: clamp(2rem, 4vw, 3.6rem);
+    line-height: .96;
+    letter-spacing: -0.05em;
+    max-width: 9ch;
+  }
+
+  .login-title em {
+    color: var(--accent-strong);
+    font-style: normal;
+  }
+
+  .login-copy {
+    margin-top: 1rem;
+    max-width: 40ch;
+    color: var(--muted-strong);
+    line-height: 1.55;
+    font-size: 15px;
+  }
+
+  .login-points {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: .9rem;
+    margin-top: 2rem;
+  }
+
+  .login-point {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 18px;
+    padding: 1rem;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .login-point strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: .35rem;
+  }
+
+  .login-point span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  .login-box {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .login-logo {
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 25px;
+    letter-spacing: -0.08em;
+  }
+
+  .login-sub {
+    color: var(--muted);
+    line-height: 1.5;
+    font-size: 14px;
+    margin-bottom: .3rem;
+  }
+
+  .login-box input {
+    width: 100%;
+    background: rgba(7, 10, 20, 0.72);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    color: var(--text);
+    font-size: 15px;
+    font-family: var(--mono);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, transform .2s;
+  }
+
+  .login-box input:focus,
+  input[type="text"]:focus,
+  input[type="number"]:focus,
+  input[type="password"]:focus,
+  input[type="date"]:focus,
+  input[type="time"]:focus,
+  select:focus {
+    border-color: rgba(216, 255, 97, 0.6);
+    box-shadow: 0 0 0 4px rgba(216, 255, 97, 0.1);
+  }
+
+  .login-error {
+    display: none;
+    color: var(--danger);
+    font-size: 13px;
+  }
+
+  .btn-accent {
+    width: 100%;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 18px;
+    background: linear-gradient(135deg, var(--accent), #f4ffaf);
+    color: #0a0f1d;
+    font-family: var(--mono);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: transform .18s, box-shadow .18s, opacity .18s;
+    box-shadow: 0 18px 40px rgba(216, 255, 97, 0.18);
+  }
+
+  .btn-accent:hover { transform: translateY(-1px); opacity: .96; }
+
+  /* APP */
+  #app { display: none; }
+
+  .app-shell {
+    width: min(1320px, calc(100% - 32px));
+    margin: 20px auto;
+  }
+
+  .topbar {
+    position: sticky;
+    top: 12px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 14px 18px;
+    background: rgba(10, 15, 29, 0.82);
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(18px);
+    flex-wrap: wrap;
+  }
+
+  .topbar-logo {
+    font-family: var(--mono);
+    color: var(--accent);
+    font-size: 17px;
+    letter-spacing: -0.05em;
+    margin-right: .2rem;
+  }
+
+  .tabbar {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    border: 1px solid transparent;
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    border-radius: 999px;
+    padding: 10px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: color .18s, border-color .18s, background .18s, transform .18s;
+  }
+
+  .tab-btn:hover {
+    color: var(--text);
+    border-color: var(--border);
+    background: rgba(255,255,255,0.06);
+    transform: translateY(-1px);
+  }
+
+  .tab-btn.active {
+    color: #09101e;
+    background: var(--accent);
+    border-color: rgba(255,255,255,0.18);
+    box-shadow: 0 10px 22px rgba(216, 255, 97, 0.2);
+  }
+
+  .spacer { flex: 1; }
+
+  .topbar-side {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    margin-left: auto;
+  }
+
+  .brand-chip,
+  .tag-version {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 7px 11px;
+    background: rgba(255,255,255,0.03);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .main {
+    padding: 1.5rem 0 2.5rem;
+  }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+    margin-bottom: 1.3rem;
+  }
+
+  .section-eyebrow {
+    font-size: 11px;
+    color: var(--accent);
+    margin-bottom: .55rem;
+  }
+
+  h2 {
+    font-size: clamp(1.9rem, 3vw, 2.7rem);
+    letter-spacing: -0.06em;
+    line-height: .95;
+  }
+
+  .section-copy {
+    color: var(--muted-strong);
+    max-width: 56ch;
+    line-height: 1.55;
+    font-size: 14px;
+  }
+
+  .mini-kicker {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+  }
+
+  .stack { display: grid; gap: 1rem; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1.05fr .95fr;
+    gap: 1rem;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 1.35rem 1.35rem 1.25rem;
+    background: linear-gradient(180deg, rgba(20, 28, 53, 0.92), rgba(11, 16, 31, 0.94));
+    box-shadow: var(--shadow);
+  }
+
+  .card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 34%);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-kicker,
+  h3 {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-top: .2rem;
+  }
+
+  .card-desc {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: .45rem;
+  }
+
+  .card-badge {
+    flex-shrink: 0;
+    padding: 8px 11px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  .card-body { position: relative; z-index: 1; }
+
+  .row-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .row-item:last-child { border-bottom: none; }
+  .row-label { flex: 1; font-size: 14px; }
+
+  @media (max-width: 767px) {
+    .row-item { flex-wrap: wrap; gap: 6px 8px; }
+    .row-item > div:first-child { flex-basis: 100%; min-width: 0; }
+  }
+  .row-sub {
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="password"],
+  input[type="date"],
+  input[type="time"],
+  select {
+    width: 100%;
+    background: rgba(7, 10, 20, 0.62);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: var(--sans);
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, transform .2s;
+  }
+
+  select {
+    appearance: none;
+    background-image:
+      linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+      linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position:
+      calc(100% - 18px) calc(50% - 3px),
+      calc(100% - 12px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+  }
+
+  .btn {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 11px 14px;
+    background: rgba(255,255,255,0.04);
+    color: var(--text);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: var(--sans);
+    transition: background .18s, border-color .18s, transform .18s;
+  }
+
+  .btn:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .btn-sm {
+    padding: 8px 10px;
+    font-size: 12px;
+    border-radius: 12px;
+  }
+
+  .btn-danger {
+    border-color: rgba(255, 122, 122, 0.18);
+    color: var(--danger);
+    background: var(--danger-dim);
+  }
+
+  .btn-danger:hover { background: rgba(255, 122, 122, 0.2); }
+
+  .btn-success {
+    border-color: rgba(113, 255, 176, 0.22);
+    color: var(--success);
+    background: var(--success-dim);
+  }
+
+  .btn-success:hover { background: rgba(113, 255, 176, 0.22); }
+
+  .btn-accent-inline {
+    color: #0a1020;
+    background: linear-gradient(135deg, var(--accent), #f2ffab);
+    border-color: transparent;
+    font-weight: 700;
+  }
+
+  .btn-accent-inline:hover { background: linear-gradient(135deg, #e5ff7b, #f4ffb6); }
+
+  .form-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .form-row input,
+  .form-row select { flex: 1; min-width: 160px; }
+
+  .add-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+
+  .toggle-track {
+    width: 42px; height: 24px; border-radius: 99px;
+    background: var(--surface3); border: 1px solid var(--border-strong);
+    position: relative; cursor: pointer; transition: background .2s;
+    flex-shrink: 0;
+  }
+  .toggle-track.active { background: var(--accent); border-color: var(--accent); }
+  .toggle-thumb {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--muted);
+    position: absolute; top: 2px; left: 2px; transition: transform .2s, background .2s;
+  }
+  .toggle-track.active .toggle-thumb { transform: translateX(18px); background: #000; }
+
+  .helper-pill,
+  .inline-note {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.03);
+    color: var(--muted);
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .field-stack { display: grid; gap: 8px; }
+
+  .field-stack label {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* ── Editor visual plano (admin) ── */
+  .plano-visual-editor{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:start}
+  @media(max-width:600px){.plano-visual-editor{grid-template-columns:1fr}}
+  .plano-admin-sidebar{display:flex;flex-direction:column;gap:5px;max-height:340px;overflow-y:auto}
+  .plano-sidebar-btn{padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.03);color:var(--text);font-family:var(--mono);font-size:12px;cursor:pointer;text-align:left;transition:background .12s,border-color .12s;white-space:nowrap}
+  .plano-sidebar-btn.placed{opacity:.6}
+  .plano-sidebar-btn.selected{background:rgba(61,122,255,.18);border-color:rgba(61,122,255,.5);color:#7eaaff}
+  .plano-admin-grid-wrap{overflow-x:auto}
+  .plano-admin-grid{display:grid;grid-template-columns:repeat(var(--plano-cols,16),1fr);gap:2px;background:rgba(255,255,255,.02);border-radius:10px;padding:4px;border:1px solid var(--border);aspect-ratio:var(--plano-cols,16)/var(--plano-rows,12);min-width:260px}
+  .plano-admin-cell{background:rgba(255,255,255,.025);border-radius:3px;cursor:crosshair;border:1px solid rgba(255,255,255,.04);transition:background .08s}
+  .plano-admin-cell:hover{background:rgba(61,122,255,.14);border-color:rgba(61,122,255,.35)}
+  .plano-admin-mesa{border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:var(--mono);font-size:10px;font-weight:600;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.09);z-index:2;text-align:center;padding:2px;overflow:hidden;transition:filter .1s}
+  .plano-admin-mesa:hover{filter:brightness(1.25)}
+  .plano-admin-mesa.selected{border-color:#7eaaff;background:rgba(61,122,255,.22);box-shadow:0 0 0 2px rgba(61,122,255,.35)}
+  .plano-admin-mesa.circle{border-radius:50%}
+  .plano-admin-mesa.decorador{border-style:dashed;background:rgba(255,255,255,.03);color:#aaa;opacity:.7}
+  .plano-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;background:rgba(255,255,255,.03);border-radius:10px;border:1px solid var(--border)}
+  .plano-ctrl-label{font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:2px}
+  .plano-ctrl-input{width:52px;padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:var(--mono);font-size:12px}
+  .plano-ctrl-sel{padding:5px 7px;border-radius:6px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:12px}
+
+  .destino-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .dest-btn {
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: var(--mono);
+    font-size: 12px;
+    transition: transform .18s, background .18s, border-color .18s;
+  }
+
+  .dest-btn:hover { transform: translateY(-1px); }
+  .dest-btn.active-barra  { background: rgba(216,255,97,.14); border-color: rgba(216,255,97,.42); color: var(--accent); }
+  .dest-btn.active-cocina { background: rgba(126,182,255,.15); border-color: rgba(126,182,255,.42); color: var(--info); }
+  .dest-btn.active-ambos  { background: rgba(113,255,176,.14); border-color: rgba(113,255,176,.42); color: var(--success); }
+
+  .badge-dest {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    letter-spacing: .03em;
+    white-space: nowrap;
+  }
+
+  .bd-barra  { background: rgba(216,255,97,.14); color: var(--accent); }
+  .bd-cocina { background: rgba(126,182,255,.14); color: var(--info); }
+  .bd-ambos  { background: rgba(113,255,176,.14); color: var(--success); }
+
+  .categoria-header {
+    padding: 12px 0 8px;
+    margin-top: 10px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid rgba(216,255,97,.16);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .nav-link {
+    text-decoration: none;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 15px 16px;
+    background: rgba(255,255,255,0.03);
+    transition: border-color .18s, background .18s, transform .18s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .8rem;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted-strong);
+  }
+
+  .nav-link:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.06);
+    border-color: var(--border-strong);
+  }
+
+  .filtros-row {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) auto auto;
+    gap: 12px;
+    align-items: end;
+  }
+
+  .filtro-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filtro-label {
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .resumen-ventas {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 1rem;
+  }
+
+  .stat-box {
+    border: 1px solid var(--border);
+    border-radius: 22px;
+    padding: 1.1rem 1.15rem;
+    background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+  }
+
+  .stat-box-num {
+    font-family: var(--mono);
+    font-size: 28px;
+    color: var(--accent);
+    letter-spacing: -0.05em;
+  }
+
+  .stat-box-lbl {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: .35rem;
+  }
+
+  .ticket-hist {
+    background: rgba(255,255,255,0.025);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .ticket-hist-hdr {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 15px;
+    background: rgba(255,255,255,0.035);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid transparent;
+  }
+
+  .ticket-hist.open .ticket-hist-hdr { border-bottom-color: var(--border); }
+  .ticket-hist-hdr:hover { background: rgba(255,255,255,0.06); }
+  .ticket-hist-mesa { flex: 1; font-family: var(--mono); font-size: 13px; font-weight: 500; }
+  .ticket-hist-total { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  .ticket-hist-hora { font-size: 11px; color: var(--muted); }
+  .ticket-hist-body { display: none; padding: 12px 15px; }
+  .ticket-hist.open .ticket-hist-body { display: block; }
+
+  .ticket-hist-linea {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ticket-hist-linea:last-child { border-bottom: none; }
+  .ventas-empty {
+    padding: 2.4rem 1rem;
+    text-align: center;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 13px;
+    border: 1px dashed var(--border);
+    border-radius: 20px;
+    background: rgba(255,255,255,0.02);
+  }
+  .turno-live-grid,
+  .turno-history-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+  }
+  .turno-card {
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 1rem 1.05rem;
+    background: rgba(255,255,255,0.03);
+  }
+  .turno-card-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: start;
+    margin-bottom: 10px;
+  }
+  .turno-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .turno-card-meta {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .turno-badge {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 5px 9px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted-strong);
+    font-family: var(--mono);
+    font-size: 10px;
+    white-space: nowrap;
+  }
+  .turno-badge.activo {
+    color: var(--success);
+    border-color: rgba(113, 255, 176, 0.22);
+    background: rgba(113, 255, 176, 0.1);
+  }
+  .turno-stat strong {
+    display: block;
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--accent);
+  }
+  .turno-stat span {
+    display: block;
+    margin-top: 4px;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .metric-strip {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .metric-mini {
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 1rem;
+    background: rgba(255,255,255,0.03);
+  }
+
+  .metric-mini strong {
+    display: block;
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--accent);
+  }
+
+  .metric-mini span {
+    display: block;
+    margin-top: .35rem;
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  code {
+    font-family: var(--mono);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 2px 6px;
+  }
+
+  .toast {
+    position: fixed;
+    right: 22px;
+    bottom: 22px;
+    z-index: 100;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), #f4ffb4);
+    color: #0a0f1d;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 12px 16px;
+    box-shadow: 0 20px 40px rgba(216,255,97,0.2);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all .24s;
+    pointer-events: none;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (max-width: 1100px) {
+    .login-shell,
+    .grid-2,
+    .grid-3,
+    .resumen-ventas,
+    .metric-strip { grid-template-columns: 1fr; }
+    .filtros-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 780px) {
+    .app-shell { width: min(100% - 20px, 100%); margin: 10px auto; }
+    .topbar { top: 6px; border-radius: 18px; padding: 12px; }
+    .main { padding-top: 1rem; }
+    .section-head { flex-direction: column; align-items: start; }
+    .topbar-side { width: 100%; margin-left: 0; justify-content: space-between; }
+    .filtros-row,
+    .form-grid { grid-template-columns: 1fr; }
+    .tabbar { width: 100%; }
+    .tab-btn { flex: 1 1 calc(50% - 8px); text-align: center; }
+    .login-shell { grid-template-columns: 1fr; }
+    .login-hero { order: 2; }
+  }
+
+  /* ── CSS simplificado para admins.html ── */
+  .categoria-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    border-radius: 6px;
+    padding: 8px 12px !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .categoria-header:hover {
+    background-color: var(--surface2);
+  }
+  .cat-toggle-arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+    margin-right: 8px;
+    font-size: 11px;
+    color: var(--accent);
+  }
+  .cat-toggle-arrow.collapsed {
+    transform: rotate(-90deg);
+  }
+  .categoria-articles {
+    overflow: hidden;
+  }
+  .categoria-articles.collapsed {
+    display: none;
+  }
+
+  /* ── Vista plano ── */
+  .plano-tabs{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+  .plano-tab{padding:5px 14px;border-radius:16px;font-size:12px;font-family:var(--mono);border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:background .15s,color .15s}
+  .plano-tab.active{background:var(--surface3);color:var(--text);border-color:var(--border-strong,var(--border))}
+  .plano-wrap{width:100%;overflow-x:auto}
+  .plano-grid{
+    display:grid;
+    grid-template-columns:repeat(var(--plano-cols,16),1fr);
+    grid-template-rows:repeat(var(--plano-rows,12),1fr);
+    gap:4px;width:100%;
+    margin:0 auto;
+    aspect-ratio:var(--plano-cols,16)/var(--plano-rows,12);
+    background:var(--surface3);border-radius:12px;padding:6px;min-width:300px
+  }
+  .plano-mesa{
+    border-radius:8px;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;font-family:var(--mono);
+    padding:4px 3px;overflow:hidden;gap:1px;
+    border:1px solid rgba(65, 84, 122, 0.22);
+    background:#ffffff;
+    color: #0b1020;
+    box-shadow:0 2px 5px rgba(18,27,49,.06);
+    container-type: inline-size;
+  }
+  .plano-mesa.ocupada{border-color:rgba(61,122,255,.45);background:#e8f0ff}
+  .plano-mesa.alerta-ok{border-color:rgba(34,197,94,.45);background:#e6f9ed}
+  .plano-mesa.alerta-warn{border-color:rgba(217,119,6,.45);background:#fffbeb}
+  .plano-mesa.alerta-danger{border-color:rgba(226,77,77,.45);background:#fef2f2}
+  .plano-mesa.circle{border-radius:50%}
+
+  .plano-mesa.decorador {
+    background: rgba(65, 84, 122, 0.08) !important;
+    border: 1px dashed var(--border-strong, rgba(65, 84, 122, 0.25)) !important;
+    color: var(--muted-strong, #44516d) !important;
+    cursor: default !important;
+    pointer-events: none !important;
+    box-shadow: none !important;
+  }
+
+  .plano-mesa span,
+  .plano-mesa-nombre,
+  .plano-mesa-tiempo,
+  .plano-mesa-estado,
+  .plano-mesa-alerta,
+  .plano-mesa-resumen {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+  }
+
+  .plano-mesa-tiempo{font-size:10px;color:var(--muted);font-weight:500;letter-spacing:.02em;line-height:1}
+  .plano-mesa-nombre{font-weight:700;font-size:14px;line-height:1.2;text-align:center;width:100%;color:#0b1020;}
+  .plano-mesa-estado{font-size:10px;color:var(--muted);line-height:1;}
+  .plano-mesa.ocupada .plano-mesa-estado{color:var(--info)}
+  .plano-mesa-alerta{font-size:10px;color:var(--muted);text-align:center;line-height:1.2;margin-top:1px}
+  .plano-mesa.alerta-ok .plano-mesa-alerta{color:#22c55e}
+  .plano-mesa.alerta-warn .plano-mesa-alerta{color:var(--warn)}
+  .plano-mesa.alerta-danger .plano-mesa-alerta{color:var(--danger)}
+  .plano-mesa-resumen{font-size:10px;color:var(--muted);text-align:center;line-height:1.2}
+  .plano-mesa-resumen strong{color:#0b1020}
+  .plano-mesa-sync{font-size:10px;margin-left:2px}
+  .plano-mesa-extra{display:block;font-size:10px;text-align:center;width:100%}
+  .plano-sinubicar{font-size:11px;color:var(--muted);margin-top:10px;padding:0 2px}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-shell">
+    <section class="login-hero">
+      <div>
+        <div class="login-kicker">Panel de control</div>
+        <h1 class="login-title">Gestiona el local sin perder <em>ritmo</em>.</h1>
+        <p class="login-copy">Mesas, carta, ventas, accesos y configuración del negocio en un solo panel. Todo con la misma lógica de Comandero 2.5, pero con una vista más clara para el día a día.</p>
+      </div>
+      <div class="login-points">
+        <div class="login-point">
+          <strong>Servicio</strong>
+          <span>Controla mesas, barra y cocina desde el mismo sitio.</span>
+        </div>
+        <div class="login-point">
+          <strong>Carta</strong>
+          <span>Ajusta productos, categorías y destinos en segundos.</span>
+        </div>
+        <div class="login-point">
+          <strong>Ventas</strong>
+          <span>Consulta tickets, totales y consumos del local.</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="login-box">
+      <div class="login-logo">// admin 2.5</div>
+      <p class="login-sub">Accede al panel de administración para configurar el local y revisar el servicio.</p>
+      <input type="password" id="pwd-input" placeholder="Contraseña" />
+      <div class="login-error" id="login-error">Contraseña incorrecta</div>
+      <button class="btn-accent" onclick="checkLogin()">Entrar</button>
+      <span class="inline-note">Este acceso solo cambia la vista del panel. La base y la operativa siguen usando la configuración del proyecto.</span>
+    </div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="app-shell">
+    <div class="topbar">
+      <div class="topbar-logo">// admin</div>
+      <div class="tabbar">
+        <button class="tab-btn active" onclick="showTab('plano',this)">Plano</button>
+        <button class="tab-btn" onclick="showTab('carta',this)">Carta</button>
+        <button class="tab-btn" onclick="showTab('ventas',this)">Ventas</button>
+        <button class="tab-btn" onclick="showTab('auditoria',this)">Auditoría</button>
+      </div>
+      <div class="spacer"></div>
+      <div class="topbar-side">
+        <span class="brand-chip">Comandero Control Simplificado</span>
+        <span class="tag-version">v2.5</span>
+      </div>
+    </div>
+
+    <div class="main">
+      <section class="section active" id="sec-plano">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Operativa</div>
+            <h2>Plano de Mesas</h2>
+            <p class="section-copy">Monitorea el estado de las mesas en tiempo real y realiza cierres de caja desde este panel centralizado.</p>
+          </div>
+          <div class="mini-kicker">Panel General</div>
+        </div>
+
+        <div class="grid-2" style="grid-template-columns: 1fr 2.5fr; align-items: start;">
+          <!-- Left Column: Cierre de caja -->
+          <div class="card" style="position: sticky; top: 20px;">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">Caja</div>
+                <div class="card-title">Cierre de Caja</div>
+                <p class="card-desc">Genera e imprime el resumen de ventas del día (cierre diario).</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="field-stack" style="margin-bottom:12px">
+                <label for="cierre-fecha">Día del cierre (vacío = hoy)</label>
+                <input type="date" id="cierre-fecha" style="width:100%" />
+              </div>
+              <button class="btn btn-accent" onclick="cierreCajaRapido()" style="width:100%">Imprimir Cierre de Caja</button>
+            </div>
+          </div>
+
+          <!-- Right Column: Visual plano -->
+          <div class="card">
+            <div class="card-header" style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div class="card-kicker">Visual</div>
+                <div class="card-title">Distribución de sala</div>
+                <p class="card-desc">Estado de consumo de mesas y alertas operativas.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="plano-zona-tabs" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px"></div>
+              <div id="plano-contenedor" style="width:100%;overflow-x:auto"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-carta">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Oferta</div>
+            <h2>Carta y categorías</h2>
+            <p class="section-copy">Organiza los productos por familias, asigna destinos y mantén la carta clara para que camarero, barra y cocina trabajen sincronizados.</p>
+          </div>
+          <div class="mini-kicker">Edición dinámica</div>
+        </div>
+
+        <div class="grid-2" style="grid-template-columns: 1fr 2.5fr; align-items: start;">
+          <div class="stack" id="carta-sidebar-stack" style="position: sticky; top: 20px; max-height: calc(100vh - 120px); overflow-y: auto; display: flex; flex-direction: column; gap: 16px;">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-kicker">Estructura</div>
+                  <div class="card-title">Nueva categoría</div>
+                  <p class="card-desc">Crea bloques de carta antes de cargar productos para mantener orden desde el principio.</p>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="form-row">
+                  <input type="text" id="cat-nombre" placeholder="Nombre de categoría, por ejemplo Cervezas" />
+                  <button class="btn btn-success" onclick="addCategoria()">+ Categoría</button>
+                </div>
+              </div>
+            </div>
+
+            <div id="articulo-form-container">
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <div class="card-kicker">Alta</div>
+                    <div class="card-title">Nuevo artículo</div>
+                    <p class="card-desc">Añade producto, precio, categoría y destino operativo desde un solo bloque.</p>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <input type="text" id="art-nombre" placeholder="Nombre del artículo" style="flex:2" />
+                    <input type="number" id="art-precio" placeholder="Precio €" step="0.1" min="0" style="max-width:140px" />
+                  </div>
+                  <div class="form-grid">
+                    <div class="field-stack">
+                      <label for="art-cat">Categoría</label>
+                      <select id="art-cat"><option value="">— Categoría —</option></select>
+                    </div>
+                    <div class="field-stack">
+                      <label>Destino</label>
+                      <div class="destino-btns">
+                        <button class="dest-btn active-barra" id="db-barra" onclick="setDest('barra')">Barra</button>
+                        <button class="dest-btn" id="db-cocina" onclick="setDest('cocina')">Cocina</button>
+                        <button class="dest-btn" id="db-ambos" onclick="setDest('ambos')">Ambos</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="add-row">
+                    <button class="btn btn-success" onclick="addArticulo()">+ Añadir artículo</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div id="cat-variantes-sidebar-container"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">Carta viva</div>
+                <div class="card-title">Productos cargados</div>
+                <p class="card-desc">Edita artículos, cambia el destino o reordena el contenido sin salir de este panel.</p>
+              </div>
+              <span class="card-badge">Operativo</span>
+            </div>
+            <div class="card-body">
+              <div id="carta-lista"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-ventas">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Análisis</div>
+            <h2>Ventas y tickets</h2>
+            <p class="section-copy">Filtra por fecha y franja horaria para revisar cierres, totales y detalle de artículos servidos, por ticket, por artículo o por día sin salir del panel.</p>
+          </div>
+          <div class="mini-kicker">Histórico</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-kicker">Filtros</div>
+              <div class="card-title">Rango de consulta</div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="filtros-row">
+              <div class="filtro-grupo">
+                <span class="filtro-label">Fecha inicio</span>
+                <input type="date" id="filtro-fecha-ini" />
+              </div>
+              <div class="filtro-grupo">
+                <span class="filtro-label">Fecha fin</span>
+                <input type="date" id="filtro-fecha-fin" />
+              </div>
+              <div class="filtro-grupo">
+                <span class="filtro-label">Hora inicio</span>
+                <input type="time" id="filtro-hora-ini" value="00:00" />
+              </div>
+              <div class="filtro-grupo">
+                <span class="filtro-label">Hora fin</span>
+                <input type="time" id="filtro-hora-fin" value="23:59" />
+              </div>
+              <button class="btn btn-accent-inline" onclick="aplicarFiltros()">Filtrar</button>
+              <button class="btn" onclick="resetFiltros()">Hoy</button>
+              <button class="btn" onclick="exportarCSV()" title="Descargar CSV del período filtrado">⬇ CSV</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="resumen-ventas">
+          <div class="stat-box">
+            <div class="stat-box-num" id="stat-mesas">—</div>
+            <div class="stat-box-lbl">Mesas cerradas</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-num" id="stat-total">—</div>
+            <div class="stat-box-lbl">Total vendido</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-num" id="stat-media">—</div>
+            <div class="stat-box-lbl">Ticket medio</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box-num" id="stat-lineas">—</div>
+            <div class="stat-box-lbl">Artículos servidos</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-kicker">Detalle</div>
+              <div class="card-title">Resultados</div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button class="btn btn-sm ventas-tab-btn active" onclick="mostrarTabVentas('tickets',this)">Por ticket</button>
+              <button class="btn btn-sm ventas-tab-btn" onclick="mostrarTabVentas('articulos',this)">Por artículo</button>
+              <button class="btn btn-sm ventas-tab-btn" onclick="mostrarTabVentas('dias',this)">Por días</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="ventas-por-ticket">
+              <div id="ventas-lista">
+                <div class="ventas-empty">Selecciona un rango de fechas y pulsa Filtrar</div>
+              </div>
+              <div style="text-align:center;margin-top:12px">
+                <button id="btn-cargar-mas" class="btn btn-sm" onclick="cargarMasHistorial()" style="display:none">Cargar más registros</button>
+              </div>
+            </div>
+            <div id="ventas-por-articulo" style="display:none">
+              <div class="ventas-empty">Aplica un filtro primero</div>
+            </div>
+            <div id="ventas-por-dia" style="display:none">
+              <div class="ventas-empty">Aplica un filtro primero</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-auditoria">
+        <div id="audit-locked" style="position:relative">
+          <div class="section-head">
+            <div>
+              <div class="section-eyebrow">Seguridad</div>
+              <h2>Auditoría de camareros</h2>
+              <p class="section-copy">Registro de todas las acciones que cada camarero realiza desde la pantalla del camarero: artículos añadidos a mesa, eliminaciones, cambios de cantidad, descuentos, impresiones de ticket, cobros y facturación. El acceso está protegido por una contraseña independiente de la del panel.</p>
+            </div>
+            <div class="mini-kicker">Acceso protegido</div>
+          </div>
+          <div class="card" style="max-width:520px;margin-top:1rem">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">Acceso</div>
+                <div class="card-title">Introduce la contraseña de auditoría</div>
+                <p class="card-desc">Por defecto es <code>audit1234</code>. Cámbiala desde la pestaña <strong>Accesos</strong>. La contraseña se guarda en la base de datos del local, no en este dispositivo.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-row">
+                <input type="password" id="audit-pwd-input" placeholder="Contraseña de auditoría" autocomplete="off" />
+                <button class="btn btn-success" onclick="checkAuditPwd()">Entrar</button>
+              </div>
+              <div id="audit-pwd-error" style="display:none;color:var(--danger,#e55);font-size:12px;margin-top:8px">Contraseña incorrecta</div>
+            </div>
+          </div>
+        </div>
+
+        <div id="audit-unlocked" style="display:none">
+          <div class="section-head">
+            <div>
+              <div class="section-eyebrow">Seguridad</div>
+              <h2>Auditoría de camareros</h2>
+              <p class="section-copy">Filtra el registro de acciones por fecha, franja horaria, camarero o tipo de acción. Se ven especialmente útil los eliminados y modificaciones de cantidad antes del cobro.</p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn btn-sm" onclick="bloquearAuditoria()">Cerrar sesión</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">Filtros</div>
+                <div class="card-title">Período, camarero y acción</div>
+                <p class="card-desc">Las fechas se interpretan en hora local del dispositivo, así que el día en curso siempre aparece. Por defecto se muestra el día de hoy.</p>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm" onclick="aplicarFiltrosAuditoria()">Aplicar</button>
+                <button class="btn btn-sm" onclick="resetFiltrosAuditoria()">Reset</button>
+                <button class="btn btn-sm" onclick="exportarAuditoriaCSV()">Exportar CSV</button>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="form-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:.75rem">
+                <div class="field-wrap">
+                  <label class="field-label">Fecha desde</label>
+                  <input type="date" id="audit-fecha-ini" />
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Fecha hasta</label>
+                  <input type="date" id="audit-fecha-fin" />
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Hora desde</label>
+                  <input type="time" id="audit-hora-ini" value="00:00" />
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Hora hasta</label>
+                  <input type="time" id="audit-hora-fin" value="23:59" />
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Camarero</label>
+                  <select id="audit-camarero">
+                    <option value="">— Todos —</option>
+                  </select>
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Acción</label>
+                  <select id="audit-accion">
+                    <option value="">— Todas —</option>
+                    <option value="articulo_agregado">Artículos añadidos</option>
+                    <option value="articulo_eliminado">Artículos eliminados</option>
+                    <option value="cantidad_editada">Cantidades editadas</option>
+                    <option value="descuento_aplicado">Descuentos aplicados</option>
+                    <option value="ticket_impreso">Tickets impresos</option>
+                    <option value="ticket_cobrado">Cobros</option>
+                    <option value="factura_emitida">Facturas emitidas</option>
+                    <option value="mesa_cerrada">Mesas cerradas</option>
+                    <option value="mesa_transferida">Mesas transferidas</option>
+                  </select>
+                </div>
+                <div class="field-wrap">
+                  <label class="field-label">Mesa (opcional)</label>
+                  <input type="text" id="audit-mesa" placeholder="Ej: 5" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid-3" style="margin-top:1rem">
+            <div class="card">
+              <div class="card-header"><div><div class="card-kicker">Resumen</div><div class="card-title">Eventos</div></div></div>
+              <div class="card-body"><div class="metric-mini"><strong id="audit-stat-eventos">—</strong><span>Acciones registradas</span></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div><div class="card-kicker">Riesgo</div><div class="card-title">Eliminaciones</div></div></div>
+              <div class="card-body"><div class="metric-mini"><strong id="audit-stat-eliminados">—</strong><span>Artículos eliminados de la cuenta</span></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><div><div class="card-kicker">Riesgo</div><div class="card-title">Descuentos / bajadas</div></div></div>
+              <div class="card-body"><div class="metric-mini"><strong id="audit-stat-descuentos">—</strong><span>Descuentos y cantidades reducidas</span></div></div>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:1rem">
+            <div class="card-header">
+              <div>
+                <div class="card-kicker">Registro</div>
+                <div class="card-title">Eventos en el período seleccionado</div>
+                <p class="card-desc">Los más recientes aparecen primero. Las acciones sensibles (eliminaciones, descuentos, cambios de cantidad) se resaltan.</p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div id="audit-lista">
+                <div style="font-size:13px;color:var(--muted)">Pulsa "Aplicar" para cargar el registro.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Modal genérico para Verifactu -->
+<div id="vf-modal-overlay" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.55);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:1rem">
+  <div style="width:min(480px,100%);background:linear-gradient(180deg,rgba(20,29,55,.98),rgba(11,16,30,.99));border:1px solid var(--border-strong);border-radius:22px;box-shadow:0 28px 80px rgba(0,0,0,.45);padding:1.6rem;display:flex;flex-direction:column;gap:1rem">
+    <div id="vf-modal-title" style="font-family:var(--mono);font-size:16px;font-weight:500;color:var(--text)"></div>
+    <div id="vf-modal-body" style="font-size:13px;color:var(--muted-strong);display:flex;flex-direction:column;gap:8px"></div>
+    <div id="vf-modal-actions" style="display:flex;gap:8px;justify-content:flex-end;margin-top:.25rem"></div>
+  </div>
+</div>
+
+<script type="module" src="admins.js"></script>
+</body>
+</html>
