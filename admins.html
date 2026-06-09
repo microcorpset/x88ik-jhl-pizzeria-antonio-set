@@ -1073,6 +1073,7 @@
         <button class="tab-btn active" onclick="showTab('plano',this)">Plano</button>
         <button class="tab-btn" onclick="showTab('carta',this)">Carta</button>
         <button class="tab-btn" onclick="showTab('ventas',this)">Ventas</button>
+        <button class="tab-btn" onclick="showTab('verifactu',this)">Verifactu</button>
         <button class="tab-btn" onclick="showTab('auditoria',this)">Auditoría</button>
       </div>
       <div class="spacer"></div>
@@ -1298,6 +1299,36 @@
             </div>
             <div id="ventas-por-dia" style="display:none">
               <div class="ventas-empty">Aplica un filtro primero</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sec-verifactu">
+        <div class="section-head">
+          <div>
+            <div class="section-eyebrow">Fiscalidad</div>
+            <h2>Verifactu (AEAT)</h2>
+            <p class="section-copy">Consulta las facturas emitidas con Verifactu. Puedes reimprimir cualquier factura, consultar su estado en AEAT o crear una rectificativa.</p>
+          </div>
+          <div class="mini-kicker">Historial de facturas</div>
+        </div>
+
+        <div class="card" style="margin-top:1rem">
+          <div class="card-header">
+            <div>
+              <div class="card-kicker">Historial</div>
+              <div class="card-title">Facturas Verifactu emitidas</div>
+              <p class="card-desc">Todas las facturas emitidas con Verifactu en el local.</p>
+            </div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-sm" onclick="cargarHistorialVf()">Actualizar</button>
+              <button class="btn btn-sm" onclick="exportarHistorialVf()">Exportar CSV</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div id="vf-historial-lista">
+              <div style="font-size:13px;color:var(--muted)">Pulsa "Actualizar" para cargar el historial.</div>
             </div>
           </div>
         </div>
