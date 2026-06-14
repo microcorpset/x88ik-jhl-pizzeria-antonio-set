@@ -349,10 +349,10 @@
   .btn-cerrar{width:100%;margin-top:.5rem;background:none;color:var(--danger);border:1px solid rgba(226,77,77,.3);border-radius:12px;padding:10px;font-family:var(--mono);font-size:13px;cursor:pointer}
   .ticket-edit-hint{font-size:11px;color:var(--muted);margin-bottom:.75rem;font-family:var(--mono);background:var(--surface3);border-radius:10px;padding:8px 10px;text-align:center}
   .nota-verificado{display:inline-block;font-size:10px;color:var(--success);font-family:var(--mono);margin-top:2px}
-  .btn-quitar-linea{background:none;border:none;color:var(--danger);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;opacity:.65}
+  .btn-quitar-linea{background:none;border:none;color:var(--danger);font-size:20px;cursor:pointer;padding:0 4px;line-height:1;flex-shrink:0;opacity:.65;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center}
   .ticket-linea-edit{display:flex;align-items:center;gap:8px}
   .btn-edit-ticket{background:none;color:var(--warn);border-color:rgba(217,119,6,.28)}
-  .ticket-qty-edit{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .ticket-qty-edit{display:flex;align-items:center;gap:6px;flex-shrink:0;width:110px;justify-content:center}
   .ticket-qty-btn{
     width:30px;height:30px;border-radius:999px;border:1px solid var(--border);background:#fff;color:var(--text);
     display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:16px;cursor:pointer
@@ -361,6 +361,47 @@
   .ticket-qty-num{font-family:var(--mono);font-size:13px;color:var(--text);min-width:34px;text-align:center}
   .ticket-linea-precio{font-family:var(--mono)}
   .ticket-linea-meta{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+
+  .ticket-actions-bar {
+    position: sticky;
+    top: 74px;
+    z-index: 30;
+    background: color-mix(in srgb, var(--bg) 90%, transparent 10%);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    padding: 10px 14px;
+    margin-bottom: 1rem;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(18, 27, 49, 0.05);
+  }
+  @media (min-width: 768px) {
+    .ticket-actions-bar {
+      top: 96px;
+    }
+  }
+
+  .ticket-linea-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+  .ticket-linea-precio-wrap {
+    display: flex;
+    gap: 4px;
+    width: 108px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .ticket-linea-precio-wrap.price-input-active {
+    width: 122px;
+  }
 
   /* ── Vista plano ── */
   .vista-toggle{display:flex;gap:6px;margin-bottom:14px}
@@ -680,6 +721,7 @@
     .ticket-edit-hint,
     .btn-quitar-linea,
     .btn-refresh,
+    .ticket-actions-bar,
     .no-print{
       display:none !important;
     }
@@ -812,7 +854,7 @@
   </div>
 
   <div id="view-ticket">
-    <div style="display:flex;gap:10px;margin-bottom:1rem;align-items:center;padding:0 4px">
+    <div class="ticket-actions-bar">
       <button class="btn btn-back" onclick="show('carta')">< Volver</button>
       <button class="btn btn-edit-ticket" id="btn-edit-ticket" onclick="toggleEditarCuenta()">Editar cuenta</button>
       <span style="font-family:var(--mono);font-size:13px;color:var(--muted)">Cuenta</span>
