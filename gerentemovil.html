@@ -1,0 +1,1244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gerente">
+  <link rel="manifest" href="manifest-gerentemovil.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/gerente-192.png">
+  <link rel="apple-touch-icon" href="icons/gerente-180.png">
+  <title>Comandero - Gerente Móvil</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #111827;
+      --panel-light: #1f2937;
+      --border: #374151;
+      --text: #f9fafb;
+      --text-dim: #9ca3af;
+      --accent: #3b82f6;
+      --accent-dim: rgba(59, 130, 246, 0.15);
+      --success: #10b981;
+      --warn: #f59e0b;
+      --danger: #ef4444;
+      --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'DM Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      height: 100vh;
+      width: 100vw;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* PANTALLA PIN */
+    #pin-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .pin-title {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 24px;
+      margin-bottom: 8px;
+      color: var(--accent);
+    }
+
+    .pin-sub {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+    }
+
+    .pin-dots {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .pin-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      transition: all 0.1s ease;
+    }
+
+    .pin-dot.filled {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      transform: scale(1.15);
+    }
+
+    .pin-dot.error {
+      background-color: var(--danger);
+      border-color: var(--danger);
+      animation: shake 0.2s ease 3;
+    }
+
+    .pin-error-msg {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--danger);
+      margin-bottom: 32px;
+      height: 20px;
+    }
+
+    .pin-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .pin-key {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 24px;
+      font-weight: 600;
+      padding: 16px;
+      border-radius: 50%;
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.1s ease;
+    }
+
+    .pin-key:active {
+      transform: scale(0.9);
+      background: var(--panel-light);
+    }
+
+    .pin-key.empty {
+      background: none;
+      border: none;
+      box-shadow: none;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .pin-key.del {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dim);
+    }
+
+    /* SHELL DE LA APLICACIÓN */
+    #app-shell {
+      display: none; /* Se activa tras login */
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* TOP HEADER */
+    .header {
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      transition: background 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background: var(--success);
+    }
+
+    .local-name {
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .btn-cierre {
+      background: var(--danger);
+      color: #fff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: opacity 0.1s;
+    }
+
+    .btn-cierre:active {
+      opacity: 0.8;
+    }
+
+    /* CONTENEDOR DE VISTAS */
+    .view-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      padding-bottom: 90px; /* Margen para el nav inferior */
+    }
+
+    .view-pane {
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .view-pane.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    /* PLANO DE MESAS */
+    .plano-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .plano-tabs::-webkit-scrollbar { display: none; }
+
+    .plano-tab {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      padding: 6px 14px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      font-family: var(--font-mono);
+    }
+
+    .plano-tab.active {
+      background: var(--accent-dim);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .plano-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid var(--border);
+      padding: 6px;
+    }
+
+    .plano-grid {
+      display: grid;
+      grid-template-columns: repeat(var(--plano-cols, 16), 1fr);
+      gap: 3px;
+      aspect-ratio: var(--plano-cols, 16) / var(--plano-rows, 12);
+      min-width: 310px;
+    }
+
+    .plano-mesa {
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.05);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2px;
+      cursor: pointer;
+      font-size: 8px;
+      color: var(--bg);
+      font-weight: bold;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .plano-mesa.circle { border-radius: 50%; }
+
+    .plano-mesa.decorador {
+      border-style: dashed;
+      background: rgba(255,255,255,0.03);
+      color: var(--text-dim) !important;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .plano-mesa-nombre {
+      font-size: 11px;
+      font-weight: 700;
+      color: #0b1020;
+    }
+    .plano-mesa.decorador .plano-mesa-nombre {
+      color: var(--text-dim);
+      font-size: 9px;
+    }
+
+    .plano-mesa.libre {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.05);
+    }
+    .plano-mesa.libre .plano-mesa-nombre { color: var(--success); }
+
+    .plano-mesa.ocupada, .plano-mesa.alerta-ok {
+      border-color: rgba(96, 165, 250, 0.5);
+      background: #e8f0ff;
+    }
+    .plano-mesa.alerta-warn {
+      border-color: var(--warn);
+      background: #fffbeb;
+    }
+    .plano-mesa.alerta-danger {
+      border-color: var(--danger);
+      background: #fef2f2;
+      animation: pulse-shadow 2s infinite;
+    }
+
+    @keyframes pulse-shadow {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+      70% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .plano-mesa-extra {
+      font-size: 7px;
+      color: rgba(11, 16, 32, 0.7);
+      margin-top: 1px;
+    }
+    .plano-mesa.alerta-danger .plano-mesa-extra { color: var(--danger); }
+    .plano-mesa.alerta-warn .plano-mesa-extra { color: var(--warn); }
+    .plano-mesa.alerta-ok .plano-mesa-extra { color: var(--accent); }
+
+    .plano-sinubicar {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 12px;
+      padding: 0 4px;
+    }
+
+    /* GRID MESAS GENERAL (CARTA/TEMPORALES) */
+    .mesas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 12px;
+    }
+
+    .mesa-card {
+      background-color: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      aspect-ratio: 1.1;
+      text-align: center;
+      transition: transform 0.15s ease;
+    }
+
+    .mesa-card:active {
+      transform: scale(0.95);
+    }
+
+    .mesa-card.libre {
+      border-color: rgba(16, 185, 129, 0.3);
+      color: var(--success);
+    }
+    .mesa-card.ocupada, .mesa-card.alerta-ok {
+      border-color: rgba(96, 165, 250, 0.4);
+      background-color: rgba(96, 165, 250, 0.05);
+      color: #60a5fa;
+    }
+    .mesa-card.alerta-warn {
+      border-color: var(--warn);
+      background-color: rgba(251, 191, 36, 0.06);
+      color: var(--warn);
+    }
+    .mesa-card.alerta-danger {
+      border-color: var(--danger);
+      background-color: rgba(239, 68, 68, 0.12);
+      color: var(--danger);
+      animation: pulse-shadow-card 2s infinite;
+    }
+
+    @keyframes pulse-shadow-card {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+      70% { box-shadow: 0 0 0 5px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+
+    .mesa-subtext {
+      font-size: 10px;
+      font-weight: 400;
+      margin-top: 4px;
+      color: var(--text-dim);
+    }
+
+    .plano-mesa-tiempo-badge {
+      font-size: 9px;
+      background: rgba(0,0,0,0.2);
+      padding: 1px 4px;
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    /* SECCIÓN CARTA MÓVIL */
+    .carta-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .accordion-header {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 4px 8px 12px 8px;
+      flex-direction: column;
+      gap: 8px;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+      background: rgba(255,255,255,0.01);
+      margin-top: -6px;
+      margin-bottom: 8px;
+    }
+
+    .accordion-header.active {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      border-color: var(--border);
+      background: var(--panel-light);
+    }
+
+    .accordion-header.active + .accordion-content {
+      display: flex;
+    }
+
+    .articulo-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--panel);
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+    }
+
+    .articulo-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .articulo-nombre {
+      font-weight: 500;
+      font-size: 13px;
+    }
+    .articulo-row.disabled .articulo-nombre {
+      color: var(--text-dim);
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+
+    .articulo-precio {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--accent);
+    }
+
+    .btn-edit-art {
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .btn-edit-art:active {
+      background: var(--border);
+    }
+
+    .fab {
+      position: fixed;
+      bottom: 76px;
+      right: 16px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+      z-index: 90;
+      cursor: pointer;
+    }
+    .fab:active {
+      transform: scale(0.9);
+    }
+
+    /* SECCIÓN VENTAS */
+    .filter-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .filter-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filter-group label {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .filter-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 13px;
+      padding: 8px 10px;
+      border-radius: 6px;
+      width: 100%;
+    }
+
+    .btn-action {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+    }
+    .btn-action:active {
+      opacity: 0.9;
+    }
+
+    .stats-summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .stat-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-value {
+      font-size: 16px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .stat-box.primary .stat-value {
+      color: var(--success);
+      font-size: 20px;
+    }
+
+    .ticket-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ticket-item {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      cursor: pointer;
+    }
+
+    .ticket-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .ticket-time {
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+      font-size: 12px;
+    }
+
+    .ticket-total {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      color: var(--success);
+    }
+
+    .ticket-details {
+      display: none;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border);
+      font-size: 12px;
+      color: var(--text-dim);
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .ticket-item.active .ticket-details {
+      display: flex;
+    }
+
+    /* SECCIÓN AUDITORÍA */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .timeline-item {
+      background: var(--panel);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 8px 8px 0;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      border-top: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .timeline-item.login { border-left-color: var(--success); }
+    .timeline-item.mesa_cerrada { border-left-color: var(--danger); }
+    .timeline-item.articulo_eliminado { border-left-color: var(--danger); }
+    .timeline-item.descuento_aplicado { border-left-color: var(--warn); }
+
+    .timeline-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+
+    .timeline-time {
+      font-family: var(--font-mono);
+      color: var(--text-dim);
+    }
+
+    .timeline-user {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .timeline-action {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .timeline-desc {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    /* BOTTOM SHEETS / SLIDING DRAWERS */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(2px);
+      z-index: 200;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .drawer-overlay.open {
+      display: block;
+      opacity: 1;
+    }
+
+    .drawer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--panel);
+      border-top: 1px solid var(--border);
+      border-radius: 20px 20px 0 0;
+      z-index: 210;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+      transform: translateY(100%);
+      transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .drawer.open {
+      transform: translateY(0);
+    }
+
+    .drawer-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .drawer-title {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    .btn-close-drawer {
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0 4px;
+    }
+
+    .drawer-body {
+      padding: 16px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .drawer-footer {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(255,255,255,0.01);
+      flex-shrink: 0;
+    }
+
+    /* FORMULARIOS */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-group label {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .form-input {
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-sans);
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      width: 100%;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .form-row {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* TOGGLE SWITCH */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      margin-bottom: 14px;
+    }
+
+    .toggle-label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--border);
+      transition: .2s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--success); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    /* LÍNEAS DE COMANDA EN DRAWERS */
+    .linea-comanda {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+    .linea-comanda.pendiente { border-left: 2px solid var(--warn); padding-left: 6px; }
+    .linea-comanda.servido { border-left: 2px solid var(--success); padding-left: 6px; }
+    .linea-comanda.cancelado { text-decoration: line-through; opacity: 0.5; }
+
+    .linea-izq {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .linea-nombre { font-weight: 500; }
+    .linea-nota { font-size: 11px; color: var(--warn); }
+    .linea-meta { font-size: 10px; color: var(--text-dim); }
+
+    .linea-der {
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    /* BARRA DE NAVEGACIÓN INFERIOR */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 64px;
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 150;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 500;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: 60px;
+      height: 100%;
+    }
+
+    .nav-icon {
+      font-size: 20px;
+      line-height: 1;
+      transition: transform 0.1s ease;
+    }
+
+    .nav-item.active {
+      color: var(--accent);
+    }
+    .nav-item.active .nav-icon {
+      transform: scale(1.15);
+    }
+
+    /* TOAST DE NOTIFICACIONES */
+    #toast {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(17, 24, 39, 0.9);
+      border: 1px solid var(--border);
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      z-index: 2000;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PANTALLA PIN -->
+  <div id="pin-screen">
+    <div class="pin-title">Comandero - Gerencia</div>
+    <div class="pin-sub">Introduce el PIN de Auditoría</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-error-msg" id="pin-error"></div>
+    
+    <div class="pin-pad" id="pin-pad">
+      <button class="pin-key" data-k="1">1</button>
+      <button class="pin-key" data-k="2">2</button>
+      <button class="pin-key" data-k="3">3</button>
+      <button class="pin-key" data-k="4">4</button>
+      <button class="pin-key" data-k="5">5</button>
+      <button class="pin-key" data-k="6">6</button>
+      <button class="pin-key" data-k="7">7</button>
+      <button class="pin-key" data-k="8">8</button>
+      <button class="pin-key" data-k="9">9</button>
+      <button class="pin-key empty"></button>
+      <button class="pin-key" data-k="0">0</button>
+      <button class="pin-key del" data-k="del">DEL</button>
+    </div>
+
+    <!-- Alfanumérico alternativo si la contraseña no es de 4 dígitos -->
+    <div id="text-login-container" style="display: none; flex-direction: column; align-items: center; width: 100%; max-width: 280px; gap: 16px;">
+      <input type="password" id="text-pin-input" class="form-input" placeholder="Contraseña" style="text-align: center; font-size: 16px; letter-spacing: 0.05em; background-color: var(--panel); border: 1px solid var(--border); color: var(--text);">
+      <button class="btn-action" id="btn-entrar-texto" style="height: 44px; font-weight: 600;">Entrar</button>
+    </div>
+  </div>
+
+  <!-- APLICACIÓN PRINCIPAL -->
+  <div id="app-shell">
+    
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-logo">
+        <div class="status-dot" id="network-status"></div>
+        <div class="local-name" id="local-title">Cargando local...</div>
+      </div>
+      <button class="btn-cierre" onclick="confirmarCierreCaja()">Cierre</button>
+    </div>
+
+    <!-- CONTENEDOR VISTAS -->
+    <div class="view-container">
+      
+      <!-- PESTAÑA: PLANO -->
+      <div class="view-pane active" id="pane-plano">
+        <div class="plano-tabs" id="plano-tabs-container">
+          <!-- Zonas dinámicas -->
+        </div>
+        <div id="plano-render-area">
+          <!-- Plano o Grid -->
+        </div>
+      </div>
+
+      <!-- PESTAÑA: CARTA -->
+      <div class="view-pane" id="pane-carta">
+        <div class="carta-container" id="carta-accordion">
+          <!-- Acordeón de categorías y artículos -->
+        </div>
+        <button class="fab" onclick="abrirModalNuevaCategoria()">+</button>
+      </div>
+
+      <!-- PESTAÑA: VENTAS -->
+      <div class="view-pane" id="pane-ventas">
+        <div class="filter-card">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>Desde</label>
+              <input type="date" id="venta-desde" class="filter-input">
+            </div>
+            <div class="filter-group">
+              <label>Hasta</label>
+              <input type="date" id="venta-hasta" class="filter-input">
+            </div>
+          </div>
+          <button class="btn-action" onclick="cargarVentasBajoDemanda()">Ver Ventas</button>
+        </div>
+        
+        <div class="stats-summary" id="ventas-resumen" style="display: none;">
+          <div class="stat-box primary">
+            <span class="stat-label">Total Facturado</span>
+            <span class="stat-value" id="stat-total">0.00 €</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Nº Tickets</span>
+            <span class="stat-value" id="stat-tickets">0</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Efectivo</span>
+            <span class="stat-value" id="stat-efectivo">0.00 €</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Tarjeta</span>
+            <span class="stat-value" id="stat-tarjeta">0.00 €</span>
+          </div>
+        </div>
+
+        <div class="ticket-list" id="ventas-listado">
+          <!-- Tickets de venta cargados -->
+        </div>
+      </div>
+
+      <!-- PESTAÑA: AUDITORÍA -->
+      <div class="view-pane" id="pane-auditoria">
+        <div class="filter-card">
+          <div class="filter-row">
+            <div class="filter-group">
+              <label>Día de Auditoría</label>
+              <input type="date" id="audit-fecha" class="filter-input">
+            </div>
+          </div>
+          <div class="filter-group" style="margin-bottom: 8px;">
+            <label>Filtrar por texto / acción</label>
+            <input type="text" id="audit-filtro-texto" class="filter-input" placeholder="Ej: login, eliminar...">
+          </div>
+          <button class="btn-action" onclick="cargarAuditoriaBajoDemanda()">Ver Auditoría</button>
+        </div>
+        
+        <div class="timeline" id="auditoria-listado">
+          <!-- Logs de auditoría -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- NAV INFERIOR -->
+    <div class="bottom-nav">
+      <button class="nav-item active" onclick="navegarA('plano')">
+        <span class="nav-icon">🗺️</span>
+        <span>Plano</span>
+      </button>
+      <button class="nav-item" onclick="navegarA('carta')">
+        <span class="nav-icon">📋</span>
+        <span>Carta</span>
+      </button>
+      <button class="nav-item" onclick="navegarA('ventas')">
+        <span class="nav-icon">📊</span>
+        <span>Ventas</span>
+      </button>
+      <button class="nav-item" onclick="navegarA('auditoria')">
+        <span class="nav-icon">🕵️</span>
+        <span>Auditoría</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- DRAWER: DETALLE COMANDA DE MESA -->
+  <div class="drawer-overlay" id="overlay-comanda" onclick="cerrarDrawerComanda()"></div>
+  <div class="drawer" id="drawer-comanda">
+    <div class="drawer-header">
+      <div class="drawer-title" id="comanda-drawer-title">Comanda</div>
+      <button class="btn-close-drawer" onclick="cerrarDrawerComanda()">&times;</button>
+    </div>
+    <div class="drawer-body" id="comanda-drawer-body">
+      <!-- Artículos cargados en comanda -->
+    </div>
+    <div class="drawer-footer">
+      <div style="display: flex; justify-content: space-between; font-weight: 700; font-size: 16px;">
+        <span>TOTAL:</span>
+        <span id="comanda-drawer-total">0.00 €</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DRAWER: EDICIÓN DE ARTÍCULO -->
+  <div class="drawer-overlay" id="overlay-edit-art" onclick="cerrarDrawerEditArt()"></div>
+  <div class="drawer" id="drawer-edit-art">
+    <div class="drawer-header">
+      <div class="drawer-title" id="edit-art-title">Editar Artículo</div>
+      <button class="btn-close-drawer" onclick="cerrarDrawerEditArt()">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <input type="hidden" id="edit-art-id">
+      <input type="hidden" id="edit-art-cat-id">
+      
+      <div class="form-group">
+        <label>Nombre del Artículo</label>
+        <input type="text" id="edit-art-nombre" class="form-input">
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group" style="flex: 1;">
+          <label>Precio (€)</label>
+          <input type="number" step="0.01" id="edit-art-precio" class="form-input" placeholder="0.00">
+        </div>
+        <div class="form-group" style="flex: 1;">
+          <label>Impresora Destino</label>
+          <select id="edit-art-destino" class="form-input" style="height: 40px; background-color: var(--panel-light); border: 1px solid var(--border); color: var(--text);">
+            <option value="cocina">Cocina</option>
+            <option value="barra">Barra</option>
+            <option value="caja">Caja</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="toggle-row">
+        <span class="toggle-label">Disponible / Activo</span>
+        <label class="switch">
+          <input type="checkbox" id="edit-art-activo" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- SECCIÓN VARIANTES -->
+      <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+        <div style="font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">VARIANTES (OPCIONES)</div>
+        <div id="art-variantes-list" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+          <!-- Listado de variantes -->
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="new-var-nombre" class="form-input" placeholder="Nombre (ej: Poco hecho)" style="flex: 2;">
+          <input type="number" step="0.01" id="new-var-precio" class="form-input" placeholder="+0.00" style="flex: 1;">
+          <button class="btn-edit-art" onclick="agregarVarianteArticulo()" style="background: var(--accent); border-color: var(--accent); color: white; padding: 0 12px;">Añadir</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="drawer-footer" style="display: flex; gap: 8px;">
+      <button class="btn-action" style="background: var(--panel-light); border: 1px solid var(--border); color: var(--text); flex: 1;" onclick="eliminarArticuloCarta()">Eliminar</button>
+      <button class="btn-action" style="flex: 2;" onclick="guardarArticuloCarta()">Guardar Cambios</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="toast">Notificación</div>
+
+  <!-- MODAL GENÉRICO TIPO ALERT/CONFIRM/PROMPT -->
+  <div class="drawer-overlay" id="overlay-custom-modal" style="z-index: 10000;" onclick="cerrarCustomModal()"></div>
+  <div class="drawer" id="custom-modal" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 20px; width: 90%; max-width: 320px; display: none; flex-direction: column; gap: 14px; z-index: 10100; box-shadow: 0 10px 25px rgba(0,0,0,0.5); transition: all 0.2s ease; bottom: auto;">
+    <div id="custom-modal-title" style="font-weight: 700; font-size: 15px; color: var(--accent); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.05em;">Título</div>
+    <div id="custom-modal-message" style="font-size: 13px; color: var(--text); line-height: 1.5; white-space: pre-wrap;">Mensaje de prueba.</div>
+    <input type="text" id="custom-modal-input" class="form-input" style="display: none; background-color: var(--panel-light); border: 1px solid var(--border); color: var(--text);" placeholder="Escribe aquí...">
+    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px;">
+      <button class="btn-action" id="custom-modal-btn-cancel" style="background: var(--panel-light); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; font-size: 12px; width: auto; height: 36px;">Cancelar</button>
+      <button class="btn-action" id="custom-modal-btn-ok" style="padding: 8px 16px; font-size: 12px; width: auto; height: 36px;">Aceptar</button>
+    </div>
+  </div>
+
+  <!-- SCRIPTS PRINCIPALES -->
+  <script type="module" src="gerentemovil.js"></script>
+
+</body>
+</html>
