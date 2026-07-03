@@ -10,7 +10,7 @@
 <link rel="manifest" href="manifest-camarero.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/camarero-192.png">
 <link rel="apple-touch-icon" href="icons/camarero-180.png">
-<title>Comandero 2.5 - Camarero</title>
+<title>Comandero 2.7 - Camarero</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -34,11 +34,16 @@
     --sans:'DM Sans',sans-serif;
     --radius:18px;
     --shadow:0 22px 70px rgba(18,27,49,.14);
+    --shadow-sm:0 4px 12px rgba(18,27,49,.04);
+    --shadow-md:0 8px 30px rgba(18,27,49,.08);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html, body {
+    overscroll-behavior-y: contain !important;
+  }
   body{
     min-height:100vh;
-    overflow-x:hidden;
+    overflow-x:clip;
     background:
       radial-gradient(circle at 12% 14%, rgba(216,255,97,.16), transparent 24%),
       radial-gradient(circle at 86% 10%, rgba(61,122,255,.14), transparent 24%),
@@ -144,7 +149,7 @@
     padding:12px 14px;
     min-height:60px;
     display:flex; align-items:center; gap:10px; flex-wrap:wrap;
-    box-shadow:var(--shadow);
+    box-shadow:var(--shadow-md);
   }
   .topbar-logo{
     width:36px; height:36px; border-radius:12px;
@@ -201,7 +206,7 @@
     min-height:112px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
     border:1px solid var(--border); border-radius:22px; display:flex; flex-direction:column;
     align-items:center; justify-content:center; cursor:pointer; transition:border .2s,background .2s,box-shadow .2s,transform .15s;
-    gap:5px; padding:14px 10px; box-shadow:var(--shadow);
+    gap:5px; padding:14px 10px; box-shadow:var(--shadow-sm);
   }
   .mesa-btn:active{transform:scale(.96)}
   .mesa-btn.ocupada{border-color:rgba(61,122,255,.34); background:rgba(61,122,255,.06)}
@@ -216,14 +221,26 @@
   .mesa-resumen strong{color:var(--text);font-weight:600}
 
   #view-carta{display:none}
+  #carta-search-bar {
+    position: -webkit-sticky;
+    position: sticky;
+    top: 62px;
+    z-index: 20;
+    background: linear-gradient(180deg, rgba(214,223,238,.96), rgba(196,208,227,.94));
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-md);
+  }
   .carta-shell{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
   .tablet-cats{display:none}
   .carta-scroll{padding-bottom:110px}
   .cat-toggle{
     display:flex;align-items:center;gap:10px;padding:12px 16px;
     background:linear-gradient(180deg, rgba(214,223,238,.94), rgba(196,208,227,.92));cursor:pointer;
-    position:sticky;top:84px;z-index:5;border:1px solid rgba(65,84,122,.18);border-radius:16px;margin-bottom:8px;user-select:none;
-    backdrop-filter:blur(12px);box-shadow:0 12px 28px rgba(18,27,49,.08);
+    position:sticky;top:124px;z-index:5;border:1px solid rgba(65,84,122,.18);border-radius:16px;margin-bottom:8px;user-select:none;
+    box-shadow:0 8px 20px rgba(18,27,49,.06);
   }
   .cat-nombre-label{font-family:var(--mono);font-size:10px;font-weight:500;color:var(--muted-strong);letter-spacing:.08em;text-transform:uppercase;flex:1}
   .cat-count{font-family:var(--mono);font-size:10px;color:var(--accent2);background:rgba(61,122,255,.1);padding:3px 8px;border-radius:999px;display:none;font-weight:500}
@@ -233,8 +250,11 @@
   .cat-items{overflow:hidden;transition:max-height .25s ease}
   .cat-section.collapsed .cat-items{max-height:0 !important}
   .art-row{
-    background:rgba(255,255,255,.74); border:1px solid var(--border); border-radius:18px;
-    margin-bottom:10px; box-shadow:var(--shadow);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
   }
   .art-main{display:flex;align-items:center;gap:10px;padding:13px 14px;user-select:none}
   .art-nombre{flex:1;font-size:15px;line-height:1.35}
@@ -547,10 +567,171 @@
     border:1px solid transparent;
     box-shadow:0 12px 24px rgba(18,27,49,.1);
   }
-  .mesas-link-btn.barra{background:#ff8c42;color:#fff}
   .mesas-link-btn.cocina{background:#111a2e;color:#fff}
 
+  /* Topbar Search input style */
+  .topbar-search {
+    position: relative;
+    display: none;
+    align-items: center;
+    background: var(--surface3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0 10px 0 32px;
+    height: 38px;
+    width: 250px;
+    max-width: 100%;
+    transition: border-color 0.2s;
+  }
+  .topbar-search .search-icon-sm {
+    position: absolute;
+    left: 10px;
+    font-size: 14px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  .topbar-search input {
+    border: none;
+    background: none;
+    outline: none;
+    width: 100%;
+    font-size: 13px;
+    color: var(--text);
+    font-family: var(--sans);
+  }
+  .topbar-search #btn-clear-topbar-search {
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 0 4px;
+    display: none;
+    line-height: 1;
+  }
+  .topbar-search input:focus {
+    border-color: var(--accent2);
+  }
+  
+  .topbar.in-carta .print-toggle {
+    display: none !important;
+  }
+  .topbar.in-carta #topbar-search {
+    display: flex;
+  }
+  
+  @media (max-width: 767px) {
+    .topbar.in-carta .topbar-logo,
+    .topbar.in-carta .topbar-title,
+    .topbar.in-carta #topbar-camarero,
+    .topbar.in-carta .spacer {
+      display: none !important;
+    }
+    .topbar.in-carta #topbar-search {
+      flex: 1;
+      width: auto;
+      margin: 0 8px 0 0;
+    }
+  }
+
+  /* Panel de categorías flotante para móvil */
+  .cats-panel {
+    display: none;
+    position: absolute;
+    top: 48px;
+    right: 0;
+    z-index: 100;
+    width: 220px;
+    max-height: 380px;
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(18,27,49,0.15);
+    backdrop-filter: blur(10px);
+    animation: fadeInScale 0.15s ease-out;
+  }
+  @keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.95) translateY(-8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .cats-panel-item {
+    padding: 12px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .cats-panel-item:last-child {
+    border-bottom: none;
+  }
+  .cats-panel-item:hover, .cats-panel-item:active {
+    background: rgba(61, 122, 255, 0.05);
+    color: var(--accent2);
+  }
+  .cats-panel-item.activa {
+    background: rgba(61, 122, 255, 0.08);
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  
+  #category-chips-scroll {
+    display: none !important;
+  }
+  
+  #btn-cats {
+    display: flex;
+  }
+  @media (min-width: 768px) {
+    #btn-cats {
+      display: none !important;
+    }
+  }
+
   .tablet-cats{display:none}
+
+  /* Listado de categorías lateral (compartido por móvil y tablet) */
+  .tablet-cats-list {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+  .tablet-cat-item {
+    padding: 12px 14px;
+    font-family: var(--sans);
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.1s, border-left 0.1s;
+    color: var(--muted-strong);
+    user-select: none;
+    border-left: 3px solid transparent;
+  }
+  .tablet-cat-item:hover {
+    background: rgba(61, 122, 255, 0.04);
+  }
+  .tablet-cat-item.activa {
+    background: rgba(61, 122, 255, 0.06);
+    border-left-color: var(--accent2);
+    color: var(--accent2);
+    font-weight: 600;
+  }
+  .tablet-cat-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(61, 122, 255, 0.12);
+    color: var(--accent2);
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
 
   @media (max-width:767px){
     .topbar{
@@ -579,34 +760,67 @@
     .quota-badge{display:none !important}
     .resumen-info{cursor:pointer}
     .resumen-total::after{content:' >'; color:var(--accent2)}
-    .tablet-cats{display:none !important}
+    
+    /* Adaptaciones de categorías en móvil */
+    .tablet-cat-item {
+      padding: 10px 6px !important;
+      font-size: 11px !important;
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 4px;
+      text-align: left;
+    }
+    .tablet-cat-count {
+      align-self: flex-end;
+      font-size: 9px !important;
+      padding: 1px 4px !important;
+    }
   }
 
   @media (min-width:768px){
-    #btn-cats,#cats-panel{display:none !important}
-    #view-carta.tablet-active{
-      display:grid !important;
-      grid-template-columns:240px 1fr;
-      height:calc(100vh - 88px);
-      overflow:hidden;
-      gap:14px;
+    .print-toggle{display:none !important}
+    .quota-badge{display:none !important}
+
+    /* Layout de dos columnas para la carta (solo tablet/desktop) */
+    #view-carta.tablet-active {
+      display: grid !important;
+      grid-template-columns: 220px 1fr;
+      height: calc(100vh - 88px);
+      overflow: hidden;
+      gap: 0;
     }
-    #view-carta.tablet-active .tablet-cats{
-      display:flex; flex-direction:column; overflow-y:auto; background:rgba(255,255,255,.78);
-      border:1px solid var(--border); border-radius:22px; box-shadow:var(--shadow);
+    #view-carta.tablet-active #carta-search-bar {
+      display: none !important;
     }
-    #view-carta.tablet-active .carta-scroll{overflow-y:auto;height:100%;padding-bottom:80px}
-    #view-carta.tablet-active .cat-toggle{display:none}
-    #view-carta.tablet-active .cat-section{display:none}
-    #view-carta.tablet-active .cat-section.tablet-visible{display:block}
-    #view-carta.tablet-active .cat-items{max-height:none !important; overflow:visible !important}
-    .tablet-cat-item{
-      padding:14px 1rem; font-family:var(--mono); font-size:13px; cursor:pointer; border-bottom:1px solid var(--border);
-      display:flex; align-items:center; justify-content:space-between; transition:background .1s; color:var(--text); user-select:none
+    #view-carta.tablet-active #category-chips-scroll {
+      display: none !important;
     }
-    .tablet-cat-item:hover{background:#fff}
-    .tablet-cat-item.activa{background:#fff; border-left:3px solid var(--accent2); color:var(--accent2); font-weight:500}
-    .tablet-cat-count{font-family:var(--mono); font-size:11px; background:rgba(61,122,255,.12); color:var(--accent2); padding:2px 7px; border-radius:20px}
+    #view-carta.tablet-active .tablet-cats {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.92);
+      border-right: 1px solid var(--border);
+      height: 100%;
+    }
+    #view-carta.tablet-active .carta-scroll {
+      overflow-y: auto;
+      height: 100%;
+      padding: 0 14px 80px 14px;
+    }
+    #view-carta.tablet-active .cat-toggle {
+      display: none !important;
+    }
+    #view-carta.tablet-active .cat-section {
+      display: none;
+    }
+    #view-carta.tablet-active .cat-section.tablet-visible {
+      display: block;
+    }
+    #view-carta.tablet-active .cat-items {
+      max-height: none !important;
+      overflow: visible !important;
+    }
   }
 
   /* Art agotado */
@@ -640,18 +854,7 @@
     letter-spacing: .12em; color: var(--muted); margin-bottom: .6rem; padding: 0 4px;
   }
 
-  /* Mobile category filter bar */
-  #cat-filter-bar {
-    display: none; padding: 8px 0 4px; position: sticky; top: 62px; z-index: 20;
-  }
-  #cat-filter-sel {
-    width: 100%; padding: 10px 14px; border-radius: 14px;
-    border: 1px solid var(--border-strong);
-    background: rgba(255,255,255,.90); backdrop-filter: blur(12px);
-    font-family: var(--mono); font-size: 13px; color: var(--text);
-    -webkit-appearance: none; appearance: none;
-    box-shadow: 0 4px 16px rgba(18,27,49,.1);
-  }
+
 
   /* Offline banner */
   #offline-banner {
@@ -726,6 +929,251 @@
       display:none !important;
     }
   }
+
+  /* EMOJI SECURITY SYSTEM SCREEN */
+  #emoji-screen{
+    position:fixed; inset:0; z-index:200;
+    background:
+      radial-gradient(circle at top left, rgba(216,255,97,.18), transparent 24%),
+      linear-gradient(180deg, #0a1120 0%, #0d1529 100%);
+    display:flex; align-items:center; justify-content:center; padding:1rem;
+  }
+  .emoji-box {
+    max-width: 360px;
+    width: 100%;
+    text-align: center;
+  }
+  .slots-container {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    width: 100%;
+    margin: 1.25rem 0;
+  }
+  .slot-reel-viewport {
+    height: 70px;
+    width: 70px;
+    overflow: hidden;
+    position: relative;
+    background: rgba(0, 0, 0, 0.45);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    box-shadow: inset 0 6px 18px rgba(0,0,0,0.6);
+  }
+  .slot-reel-viewport::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    box-shadow: 
+      inset 0 14px 14px -7px rgba(0,0,0,0.95),
+      inset 0 -14px 14px -7px rgba(0,0,0,0.95);
+    border-radius: 16px;
+  }
+  .slot-reel-viewport::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 33px; height: 4px;
+    background: rgba(216, 255, 97, 0.25);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .slot-reel-container {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .emoji-item {
+    height: 70px;
+    font-size: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+  }
+  .emoji-picker-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin: 1.25rem auto;
+    width: 100%;
+    max-width: 320px;
+  }
+  .emoji-picker-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    font-size: 24px;
+    height: 52px;
+    width: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.1s ease, background-color 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  }
+  .emoji-picker-btn:active {
+    transform: scale(0.9);
+    background: rgba(255, 255, 255, 0.15);
+  }
+  .emoji-btn-clear {
+    background: transparent;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: #ff6b6b;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.2s, border-color 0.2s;
+    margin-bottom: 1rem;
+    align-self: center;
+    display: inline-block;
+  }
+  .emoji-btn-clear:active {
+    background: rgba(255, 107, 107, 0.15);
+  }
+  .selected-emojis-preview {
+    font-family: var(--mono);
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.75);
+    margin: 0.2rem 0 0.8rem;
+    letter-spacing: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    display: inline-block;
+  }
+  .emoji-btn-confirm {
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+    background: #d8ff61;
+    color: #0d1529;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 8px 24px rgba(216, 255, 97, 0.25);
+    transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+  }
+  .emoji-btn-confirm:active {
+    transform: scale(0.98);
+    box-shadow: 0 4px 12px rgba(216, 255, 97, 0.15);
+  }
+  .emoji-btn-confirm:disabled {
+    background: rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.3);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+  /* NUEVAS MEJORAS UX/UI DE CARTA, CHIPS Y BUSCADOR */
+  .category-chips-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding: 4px 4px 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    margin-bottom: 4px;
+  }
+  .category-chips-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .category-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted-strong);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.1s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+    flex-shrink: 0;
+  }
+  .category-chip:active {
+    transform: scale(0.95);
+  }
+  .category-chip.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(17,26,46,0.15);
+  }
+
+  .search-bar-container {
+    position: relative;
+    width: 100%;
+  }
+  #carta-search-input {
+    width: 100%;
+    height: 44px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0 40px 0 40px;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+  }
+  #carta-search-input:focus {
+    border-color: var(--accent2);
+    box-shadow: 0 0 0 3px rgba(61,122,255,0.15);
+  }
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 15px;
+    color: var(--muted);
+    pointer-events: none;
+  }
+  #btn-clear-search {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: var(--muted);
+    cursor: pointer;
+  }
+
+  /* CHIPS DE NOTAS RAPIDAS Y MEJORAS DE CARTA */
+  .drawer-nota-chips::-webkit-scrollbar {
+    display: none;
+  }
+  .drawer-nota-chip {
+    transition: background 0.15s, color 0.15s, transform 0.1s;
+  }
+  .drawer-nota-chip:active {
+    transform: scale(0.93);
+    background: var(--border-strong) !important;
+  }
+
+  /* POP ANIMATION PARA BOTON CARRITO */
+  @keyframes pop-bounce {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.15); }
+    50% { transform: scale(0.92); }
+    70% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+  }
+  .cart-pop {
+    animation: pop-bounce 0.45s ease-in-out;
+  }
+  #topbar-camarero, #topbar-mesa { display: none !important; }
 </style>
 </head>
 <body>
@@ -738,7 +1186,7 @@
   <div class="pin-box">
     <div class="pin-logo">
       <div class="pin-logo-icon">🗒</div>
-      <div class="pin-title">Comandero 2.5</div>
+      <div class="pin-title">Comandero 2.7</div>
     </div>
     <div class="pin-sub" id="pin-sub">Introduce tu PIN</div>
     <div class="pin-dots">
@@ -765,6 +1213,45 @@
   </div>
 </div>
 
+<div id="emoji-screen" style="display:none;">
+  <div class="pin-box emoji-box">
+    <div class="pin-logo">
+      <div class="pin-logo-icon">🎰</div>
+      <div class="pin-title" id="emoji-title">Emojis de Seguridad</div>
+    </div>
+    <div class="pin-sub" id="emoji-sub">Verifica tu combinación de emojis</div>
+    
+    <!-- Contenedor de la máquina tragaperras -->
+    <div class="slots-container">
+      <div class="slot-reel-viewport">
+        <div class="slot-reel-container" id="reel-0"></div>
+      </div>
+      <div class="slot-reel-viewport">
+        <div class="slot-reel-container" id="reel-1"></div>
+      </div>
+      <div class="slot-reel-viewport">
+        <div class="slot-reel-container" id="reel-2"></div>
+      </div>
+    </div>
+    
+    <!-- Selector de emojis táctil -->
+    <div class="emoji-picker-grid" id="emoji-picker-grid"></div>
+    
+    <!-- Botón para limpiar -->
+    <div style="text-align: center; margin-top: 4px;">
+      <button type="button" class="emoji-btn-clear" onclick="limpiarSeleccionEmojis()">Limpiar Selección</button>
+    </div>
+    
+    <!-- Mostrar los emojis seleccionados en texto para claridad -->
+    <div class="selected-emojis-preview" id="selected-emojis-preview">🍔 🍔 🍔</div>
+    
+    <div class="pin-error-msg" id="emoji-error">Combinación incorrecta</div>
+    
+    <!-- Botón de confirmar -->
+    <button class="emoji-btn-confirm" id="emoji-btn-confirm">Confirmar Acceso</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal-box" id="modal-box">
     <div class="modal-title" id="modal-title"></div>
@@ -778,9 +1265,14 @@
 <div class="app-shell">
   <div class="topbar">
     <span class="topbar-logo">🗒</span>
-    <span class="topbar-title">Comandero 2.5</span>
+    <span class="topbar-title" id="topbar-title">Comandero 2.7</span>
     <span class="mesa-badge" id="topbar-mesa"></span>
     <span id="topbar-camarero"></span>
+    <div class="topbar-search" id="topbar-search" style="display:none;">
+      <span class="search-icon-sm">🔍</span>
+      <input type="text" id="topbar-search-input" placeholder="Buscar artículo..." oninput="window.filtrarCartaPorTexto(this.value)">
+      <button type="button" id="btn-clear-topbar-search" onclick="window.limpiarBuscadorCarta()">&times;</button>
+    </div>
     <div class="spacer"></div>
     <label class="print-toggle" title="Pantalla siempre encendida">
       <div class="toggle-track" id="wake-track"><div class="toggle-thumb"></div></div>
@@ -830,17 +1322,24 @@
 
   <div id="view-carta">
     <div class="tablet-cats" id="tablet-cats"></div>
-    <div id="cat-filter-bar">
-      <select id="cat-filter-sel" onchange="filtrarCategoria(this.value)">
-        <option value="">Todas las categorías</option>
-      </select>
+    <div id="carta-search-bar">
+      <div style="display: flex; gap: 8px; align-items: center; position: relative;">
+        <div class="search-bar-container" style="position: relative; flex: 1;">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="carta-search-input" placeholder="Buscar artículo..." oninput="window.filtrarCartaPorTexto(this.value)">
+          <button type="button" id="btn-clear-search" onclick="window.limpiarBuscadorCarta()" style="display:none;">&times;</button>
+        </div>
+        <button type="button" id="btn-cats" onclick="window.toggleCatsPanel()" style="height: 44px; padding: 0 14px; border-radius: 14px; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.5); color: var(--text); font-family: var(--sans); font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 5px rgba(0,0,0,0.02); transition: background 0.1s;">
+          📂 <span id="btn-cats-label">Categorías</span>
+        </button>
+        <!-- Panel de categorías flotante -->
+        <div class="cats-panel" id="cats-panel"></div>
+      </div>
     </div>
+    <div class="category-chips-scroll" id="category-chips-scroll"></div>
     <div class="carta-scroll" id="carta-body"><div class="loading">Cargando carta...</div></div>
 
-    <button id="btn-cats" onclick="toggleCatsPanel()"
-      style="position:fixed;left:1rem;bottom:98px;z-index:25;background:var(--accent);color:#fff;border:none;border-radius:50%;width:46px;height:46px;font-size:18px;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.18);display:none;align-items:center;justify-content:center">|||</button>
-    <div id="cats-panel"
-      style="display:none;position:fixed;left:1rem;bottom:150px;z-index:26;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,.15);min-width:180px;overflow:hidden;max-height:60vh;overflow-y:auto"></div>
+
 
     <div class="bottom-bar">
       <button class="btn btn-back" onclick="volverMesas()">< Mesas</button>

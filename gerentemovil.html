@@ -708,6 +708,8 @@
     .timeline-item.mesa_cerrada { border-left-color: var(--danger); }
     .timeline-item.articulo_eliminado { border-left-color: var(--danger); }
     .timeline-item.descuento_aplicado { border-left-color: var(--warn); }
+    .timeline-item.login_incorrecto { border-left-color: var(--danger); background: rgba(226,77,77,0.04); }
+    .timeline-item.login_bloqueado { border-left-color: var(--danger); background: rgba(226,77,77,0.08); font-weight: bold; }
 
     .timeline-header {
       display: flex;
@@ -1121,6 +1123,133 @@
         </div>
       </div>
 
+      <!-- PESTAÑA: CAMAREROS -->
+      <div class="view-pane" id="pane-camareros">
+        <!-- Controles de Bloqueo Global -->
+        <div class="filter-card" style="margin-bottom: 16px;">
+          <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: var(--accent); border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">Seguridad y Cierre</h3>
+          
+          <div class="toggle-row">
+            <div class="switch-info" style="flex: 1; padding-right: 12px;">
+              <div class="toggle-label">Bloqueo Total Camareros</div>
+              <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Evita que los camareros accedan (Cierre).</div>
+            </div>
+            <label class="switch" style="margin: 0;">
+              <input type="checkbox" id="switch-bloqueo-camareros-movil" onchange="window.toggleBloqueoCamarerosGlobal()">
+              <span class="slider"></span>
+            </label>
+          </div>
+          
+          <div class="filter-group" style="margin-top: 8px;">
+            <label style="font-size: 12px; margin-bottom: 4px; display: block;">Camarero Exceptuado de Cierre</label>
+            <select id="select-camarero-excepcion-movil" class="filter-input" onchange="window.actualizarExcepcionCamarero()" style="height: 36px; padding: 0 8px; width: 100%; box-sizing: border-box;">
+              <option value="">(Ninguno)</option>
+            </select>
+          </div>
+
+          <div class="toggle-row" style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+            <div class="switch-info" style="flex: 1; padding-right: 12px;">
+              <div class="toggle-label">Acceso Encargado Activo</div>
+              <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Permitir el acceso a encargado.html</div>
+            </div>
+            <label class="switch" style="margin: 0;">
+              <input type="checkbox" id="switch-encargado-activo-movil" onchange="window.guardarEstadoEncargadoMovil()">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <label style="font-size: 12px; margin-bottom: 4px; display: block;">Contraseña Encargado</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="text" id="config-encargado-pass-movil" class="filter-input" placeholder="PIN o Contraseña" style="height: 32px; padding: 0 8px; font-size: 12px; flex: 1; box-sizing: border-box;">
+              <button type="button" class="btn-action" onclick="window.guardarPassEncargadoMovil()" style="height: 32px; padding: 0 10px; font-size: 11px; margin: 0; background: var(--accent); color: var(--panel); border: none; width: auto; font-weight: bold;">Guardar</button>
+            </div>
+          </div>
+
+          <div class="toggle-row" style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+            <div class="switch-info" style="flex: 1; padding-right: 12px;">
+              <div class="toggle-label">Verificación por Emojis</div>
+              <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Exigir combinación de emojis tras el PIN.</div>
+            </div>
+            <label class="switch" style="margin: 0;">
+              <input type="checkbox" id="switch-emojis-activo-movil" onchange="window.guardarEstadoEmojisMovil()">
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <div style="margin-top: 10px;">
+            <label style="font-size: 12px; margin-bottom: 4px; display: block;">Combinación de Emojis Global</label>
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+              <div id="movil-emojis-preview" style="font-size: 18px; letter-spacing: 3px; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border); min-width: 80px; text-align: center;">❓ ❓ ❓</div>
+              <button type="button" class="btn-action" onclick="window.limpiarEmojisMovil()" style="height: 32px; padding: 0 10px; font-size: 11px; margin: 0; background: transparent; border: 1px solid var(--border); width: auto;">Limpiar</button>
+              <button type="button" class="btn-action" onclick="window.guardarEmojisMovil()" style="height: 32px; padding: 0 10px; font-size: 11px; margin: 0; background: var(--accent); color: var(--panel); border: none; width: auto; font-weight: bold;">Guardar</button>
+            </div>
+            <div class="movil-emoji-picker" style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px;">
+              <!-- Botones de emoji -->
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+            <div class="toggle-row">
+              <div class="switch-info" style="flex: 1; padding-right: 12px;">
+                <div class="toggle-label">Restricción por GPS</div>
+                <div style="font-size: 11px; color: var(--text-dim); margin-top: 2px;">Los camareros solo acceden dentro del radio del local.</div>
+              </div>
+              <label class="switch" style="margin: 0;">
+                <input type="checkbox" id="switch-geo-activo-movil" onchange="window.guardarEstadoGeoMovil()">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <div style="flex:1">
+                <label style="font-size:11px; display:block; margin-bottom:3px;">Lat</label>
+                <input type="text" id="config-geo-lat-movil" disabled class="filter-input" style="height:32px; padding:0 8px; font-size:12px; width:100%; box-sizing:border-box;">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:11px; display:block; margin-bottom:3px;">Lng</label>
+                <input type="text" id="config-geo-lng-movil" disabled class="filter-input" style="height:32px; padding:0 8px; font-size:12px; width:100%; box-sizing:border-box;">
+              </div>
+            </div>
+            <button type="button" class="btn-action" onclick="window.usarUbicacionActualMovil()" style="width:100%; margin-top:8px; height:36px; font-size:12px; background:var(--accent); color:var(--panel); border:none; font-weight:bold;">📍 Usar esta ubicación</button>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <div style="flex:1">
+                <label style="font-size:11px; display:block; margin-bottom:3px;">Radio (m)</label>
+                <input type="number" id="config-geo-radio-movil" min="1" placeholder="100" class="filter-input" style="height:32px; padding:0 8px; font-size:12px; width:100%; box-sizing:border-box;">
+              </div>
+              <div style="flex:1">
+                <label style="font-size:11px; display:block; margin-bottom:3px;">Revalidar</label>
+                <select id="config-geo-intervalo-movil" class="filter-input" style="height:32px; padding:0 6px; font-size:12px; width:100%; box-sizing:border-box;">
+                  <option value="1">1h</option>
+                  <option value="2">2h</option>
+                  <option value="3" selected>3h</option>
+                  <option value="6">6h</option>
+                  <option value="12">12h</option>
+                  <option value="24">24h</option>
+                </select>
+              </div>
+            </div>
+            <button type="button" class="btn-action" onclick="window.calcularRadioDesdeLimiteMovil()" style="width:100%; margin-top:6px; height:36px; font-size:12px; background:transparent; border:1px solid var(--border);">📏 Calcular radio desde aquí</button>
+            <button type="button" class="btn-action" onclick="window.guardarUbicacionMovil()" style="width:100%; margin-top:6px; height:36px; font-size:12px; background:var(--accent); color:var(--panel); border:none; font-weight:bold;">💾 Guardar Ubicación</button>
+          </div>
+        </div>
+
+        <!-- Cierre de Caja Pasado -->
+        <div class="filter-card" style="margin-bottom: 16px;">
+          <h3 style="margin-top: 0; margin-bottom: 12px; font-size: 15px; color: var(--warn); border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;">Reimprimir Cierre Pasado</h3>
+          <p style="font-size: 11px; color: var(--text-dim); margin-bottom: 10px;">Genera y envía a la impresora de caja el reporte completo de un día anterior en base al historial de tickets.</p>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="date" id="cierre-fecha-pasada" class="filter-input" style="height: 38px; padding: 0 8px; font-size: 13px; flex: 1; box-sizing: border-box; background-color: var(--panel-light); border: 1px solid var(--border); color: var(--text); border-radius: 8px;">
+            <button type="button" class="btn-action" onclick="window.cierreDiaPasado()" style="height: 38px; padding: 0 12px; font-size: 12px; margin: 0; background: var(--warn); color: var(--panel); border: none; width: auto; font-weight: bold; border-radius: 8px;">Imprimir Cierre</button>
+          </div>
+        </div>
+        
+        <!-- Listado de Camareros -->
+        <h3 style="margin-left: 4px; margin-bottom: 10px; font-size: 14px; color: var(--text-dim);">Estado de Camareros</h3>
+        <div id="camareros-listado-movil" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Items de camarero renderizados dinámicamente -->
+        </div>
+      </div>
+
     </div>
 
     <!-- NAV INFERIOR -->
@@ -1140,6 +1269,10 @@
       <button class="nav-item" onclick="navegarA('auditoria')">
         <span class="nav-icon">🕵️</span>
         <span>Auditoría</span>
+      </button>
+      <button class="nav-item" onclick="navegarA('camareros')">
+        <span class="nav-icon">👤</span>
+        <span>Camareros</span>
       </button>
     </div>
 
@@ -1202,6 +1335,29 @@
         </label>
       </div>
 
+      <!-- NOTAS PREDEFINIDAS DEL ARTÍCULO -->
+      <div class="form-group" style="margin-top: 12px;">
+        <label>Notas Predefinidas (separadas por comas)</label>
+        <input type="text" id="edit-art-notas" class="form-input" placeholder="Ej: Poco hecho, Sin cebolla, Salsa aparte">
+      </div>
+
+      <!-- SECCIÓN COMBOS (MENÚ / DESAYUNOS) -->
+      <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+        <div class="toggle-row" style="margin-bottom: 8px;">
+          <span class="toggle-label" style="font-weight: 600;">Es un Combo (Menú / Desayuno)</span>
+          <label class="switch">
+            <input type="checkbox" id="edit-art-escombo" onchange="toggleComboPanelMovil()">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div id="combo-panel-movil" style="display: none; flex-direction: column; gap: 10px;">
+          <div id="combo-groups-lista-movil" style="display: flex; flex-direction: column; gap: 8px;">
+            <!-- Listado de grupos de combo y sus opciones -->
+          </div>
+          <button class="btn-edit-art" style="background: var(--success); border-color: var(--success); color: white; width: 100%; height: 36px; font-size: 12px;" onclick="agregarGrupoComboMovil()">+ Añadir Grupo</button>
+        </div>
+      </div>
+
       <!-- SECCIÓN VARIANTES -->
       <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
         <div style="font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">VARIANTES (OPCIONES)</div>
@@ -1219,6 +1375,45 @@
     <div class="drawer-footer" style="display: flex; gap: 8px;">
       <button class="btn-action" style="background: var(--panel-light); border: 1px solid var(--border); color: var(--text); flex: 1;" onclick="eliminarArticuloCarta()">Eliminar</button>
       <button class="btn-action" style="flex: 2;" onclick="guardarArticuloCarta()">Guardar Cambios</button>
+    </div>
+  </div>
+
+  <!-- DRAWER: EDICIÓN DE CATEGORÍA -->
+  <div class="drawer-overlay" id="overlay-edit-cat" onclick="cerrarDrawerEditCat()"></div>
+  <div class="drawer" id="drawer-edit-cat">
+    <div class="drawer-header">
+      <div class="drawer-title" id="edit-cat-title">Editar Categoría</div>
+      <button class="btn-close-drawer" onclick="cerrarDrawerEditCat()">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <input type="hidden" id="edit-cat-id">
+      
+      <div class="form-group">
+        <label>Nombre de la Categoría</label>
+        <input type="text" id="edit-cat-nombre" class="form-input">
+      </div>
+      
+      <div class="form-group" style="margin-top: 12px;">
+        <label>Notas Predefinidas (separadas por comas)</label>
+        <input type="text" id="edit-cat-notas" class="form-input" placeholder="Ej: Sin hielo, Sin sal, Para llevar">
+      </div>
+
+      <!-- SECCIÓN VARIANTES DE CATEGORÍA -->
+      <div style="margin-top: 16px; border-top: 1px solid var(--border); padding-top: 16px;">
+        <div style="font-size: 13px; font-weight: 600; color: var(--text-dim); margin-bottom: 8px;">VARIANTES COMPARTIDAS (OPCIONES)</div>
+        <div id="cat-variantes-list" style="display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
+          <!-- Listado de variantes de la categoría -->
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <input type="text" id="new-cat-var-nombre" class="form-input" placeholder="Nombre (ej: Doble)" style="flex: 2;">
+          <input type="number" step="0.01" id="new-cat-var-precio" class="form-input" placeholder="+0.00" style="flex: 1;">
+          <button class="btn-edit-art" onclick="agregarVarianteCategoria()" style="background: var(--accent); border-color: var(--accent); color: white; padding: 0 12px;">Añadir</button>
+        </div>
+      </div>
+    </div>
+    <div class="drawer-footer" style="display: flex; gap: 8px;">
+      <button class="btn-action" style="background: var(--panel-light); border: 1px solid var(--border); color: var(--text); flex: 1;" onclick="eliminarCategoriaCarta()">Eliminar</button>
+      <button class="btn-action" style="flex: 2;" onclick="guardarCategoriaCarta()">Guardar Cambios</button>
     </div>
   </div>
 
