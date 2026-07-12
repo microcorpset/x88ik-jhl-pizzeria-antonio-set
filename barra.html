@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -12,21 +12,27 @@
 <link rel="apple-touch-icon" href="icons/barra-180.png" id="apple-touch-icon">
 <script>
   (function () {
-    var esCocina = location.pathname.includes('cocina') || location.search.includes('rol=cocina');
-    if (!esCocina) return;
+    var params = new URLSearchParams(location.search);
+    var rol = params.get('rol') || (location.pathname.includes('cocina') ? 'cocina' : 'barra');
+    if (rol === 'barra') return;
     var title = document.getElementById('page-title');
     var manifest = document.getElementById('app-manifest');
     var icon = document.getElementById('app-icon');
     var appleIcon = document.getElementById('apple-touch-icon');
     var appleTitle = document.getElementById('apple-mobile-title');
     var theme = document.getElementById('theme-color-meta');
-    if (title) title.textContent = 'Comandero 2.5 - Cocina';
-    if (manifest) manifest.setAttribute('href', 'manifest-cocina.webmanifest');
-    if (icon) icon.setAttribute('href', 'icons/cocina-192.png');
-    if (appleIcon) appleIcon.setAttribute('href', 'icons/cocina-180.png');
-    if (appleTitle) appleTitle.setAttribute('content', 'Cocina');
-    if (theme) theme.setAttribute('content', '#071522');
-    document.title = 'Comandero 2.5 - Cocina';
+    var rolCapitalized = rol.charAt(0).toUpperCase() + rol.slice(1);
+    if (title) title.textContent = 'Comandero 2.5 - ' + rolCapitalized;
+    if (manifest) manifest.setAttribute('href', 'manifest-' + rol + '.webmanifest');
+    if (icon) icon.setAttribute('href', 'icons/' + rol + '-192.png');
+    if (appleIcon) appleIcon.setAttribute('href', 'icons/' + rol + '-180.png');
+    if (appleTitle) appleTitle.setAttribute('content', rolCapitalized);
+    if (rol === 'cocina') {
+      if (theme) theme.setAttribute('content', '#071522');
+    } else if (rol === 'pizzas') {
+      if (theme) theme.setAttribute('content', '#200d02');
+    }
+    document.title = 'Comandero 2.5 - ' + rolCapitalized;
   })();
 </script>
 <title id="page-title">Comandero 2.5 - Barra</title>
@@ -61,6 +67,13 @@
     --accent-text:#04131d;
     --highlight-bg:rgba(116,223,255,.08);
     --highlight-border:rgba(116,223,255,.42);
+  }
+  .rol-pizzas{
+    --accent:#ff8c00;
+    --accent-dim:rgba(255,140,0,.15);
+    --accent-text:#ffffff;
+    --highlight-bg:rgba(255,140,0,.08);
+    --highlight-border:rgba(255,140,0,.42);
   }
   body.theme-light{
     --accent:#728d00;
