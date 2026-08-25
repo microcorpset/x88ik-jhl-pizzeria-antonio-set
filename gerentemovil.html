@@ -689,6 +689,109 @@
       display: flex;
     }
 
+    /* SUBPESTAÑAS Y ACCESOS RÁPIDOS DE VENTAS */
+    .quick-dates-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .quick-dates-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .btn-quick-date {
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 11px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 20px;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+    .btn-quick-date.active, .btn-quick-date:active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .ventas-subtabs-wrap {
+      margin-bottom: 12px;
+    }
+    .ventas-subtabs {
+      display: flex;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+    }
+    .ventas-subtab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+      font-family: var(--font-sans);
+    }
+    .ventas-subtab-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .ventas-tabla-wrap {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ventas-tabla {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .ventas-tabla th {
+      background: var(--panel-light);
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 11px;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+    .ventas-tabla td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ventas-tabla tr:last-child td {
+      border-bottom: none;
+    }
+    .ventas-tabla .text-right {
+      text-align: right;
+    }
+    .ventas-tabla .mono {
+      font-family: var(--font-mono);
+    }
+    .ventas-tabla .t-foot td {
+      background: var(--panel-light);
+      font-weight: 700;
+      border-top: 2px solid var(--border);
+    }
+
     /* SECCIÓN AUDITORÍA */
     .timeline {
       display: flex;
@@ -1070,6 +1173,20 @@
       <!-- PESTAÑA: VENTAS -->
       <div class="view-pane" id="pane-ventas">
         <div class="filter-card">
+          <!-- Accesos Rápidos de Fechas y Trimestres -->
+          <div class="quick-dates-scroll">
+            <button type="button" class="btn-quick-date active" onclick="setQuickFiltroVentas('hoy', this)">Hoy</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('ayer', this)">Ayer</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('mes_actual', this)">Este Mes</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('mes_anterior', this)">Mes Ant.</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('trimestre_actual', this)">Trimestre Actual</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('trimestre_anterior', this)">Último Trimestre</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('t1', this)">1T (Ene-Mar)</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('t2', this)">2T (Abr-Jun)</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('t3', this)">3T (Jul-Sep)</button>
+            <button type="button" class="btn-quick-date" onclick="setQuickFiltroVentas('t4', this)">4T (Oct-Dic)</button>
+          </div>
+
           <div class="filter-row">
             <div class="filter-group">
               <label>Desde</label>
@@ -1080,7 +1197,12 @@
               <input type="date" id="venta-hasta" class="filter-input">
             </div>
           </div>
-          <button class="btn-action" onclick="cargarVentasBajoDemanda()">Ver Ventas</button>
+
+          <div style="display:flex;gap:8px;">
+            <button class="btn-action" style="flex:1.2;" onclick="cargarVentasBajoDemanda()">🔍 Ver Ventas</button>
+            <button class="btn-action" style="flex:1.1;background:var(--panel-light);border:1px solid var(--border);color:var(--text);" onclick="exportarPDFVentas()">📄 PDF Gestor</button>
+            <button class="btn-action" style="width:auto;padding:10px 14px;background:var(--panel-light);border:1px solid var(--border);color:var(--text);" onclick="exportarCSVVentas()" title="Descargar CSV">⬇️ CSV</button>
+          </div>
         </div>
         
         <div class="stats-summary" id="ventas-resumen" style="display: none;">
@@ -1093,17 +1215,37 @@
             <span class="stat-value" id="stat-tickets">0</span>
           </div>
           <div class="stat-box">
-            <span class="stat-label">Efectivo</span>
+            <span class="stat-label">💵 Efectivo</span>
             <span class="stat-value" id="stat-efectivo">0.00 €</span>
           </div>
           <div class="stat-box">
-            <span class="stat-label">Tarjeta</span>
+            <span class="stat-label">💳 Tarjeta</span>
             <span class="stat-value" id="stat-tarjeta">0.00 €</span>
           </div>
         </div>
 
+        <!-- Subpestañas: Por ticket / Por artículo / Por días -->
+        <div class="ventas-subtabs-wrap" id="ventas-subtabs-wrap" style="display: none;">
+          <div class="ventas-subtabs">
+            <button type="button" class="ventas-subtab-btn active" id="subtab-btn-tickets" onclick="cambiarSubtabVentas('tickets')">Por ticket</button>
+            <button type="button" class="ventas-subtab-btn" id="subtab-btn-articulos" onclick="cambiarSubtabVentas('articulos')">Por artículo</button>
+            <button type="button" class="ventas-subtab-btn" id="subtab-btn-dias" onclick="cambiarSubtabVentas('dias')">Por días</button>
+          </div>
+        </div>
+
+        <!-- Contenedor 1: Por ticket -->
         <div class="ticket-list" id="ventas-listado">
           <!-- Tickets de venta cargados -->
+        </div>
+
+        <!-- Contenedor 2: Por artículo -->
+        <div id="ventas-por-articulo" style="display: none;">
+          <!-- Tabla de artículos -->
+        </div>
+
+        <!-- Contenedor 3: Por días -->
+        <div id="ventas-por-dia" style="display: none;">
+          <!-- Tabla de días -->
         </div>
       </div>
 
@@ -1329,7 +1471,6 @@
             <option value="barra">Barra</option>
             <option value="pizzas">Pizzas</option>
             <option value="ambos">Ambos</option>
-            <option value="caja">Caja</option>
           </select>
         </div>
       </div>
